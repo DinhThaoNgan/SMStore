@@ -1,0 +1,147 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# .NET Core
+.project
+.directory
+
+# Visual Studio 2015/2017 cache/options
+.vs/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio 2015+ cache/options
+*.vsidx
+*.dbmdl
+*.dbproj
+*.dbmdl
+*.dbproj
+*.dbmdl
+*.dbproj
+*.dbmdl
+*.dbproj
+
+# MSTest test Results
+[TestResults]/
+[BuildOutput]/
+
+# NUNIT
+*.VisualState.xml
+TestResult.xml
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# NuGet Packages
+*.nupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# DotCover
+*.dotCover
+
+# TeamCity
+_TeamCity*
+
+# NCover
+*.ncover
+*.ncoverproj
+
+# Installshield
+[Oo]utput/
+[Oo]ut/
+
+# Windows Azure Build Output
+csx/
+*.build.csdef
+
+# Windows Store app package directory
+AppPackages/
+BundleArtifacts/
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Business Intelligence projects
+[Oo]utput/
+[Bb]in/
+[Dd]ata[Qq]uery.[Tt]emp/
+
+# LightSwitch generated files
+GeneratedArtifacts/
+_Pvt_[Ee]xtensions/
+ModelManifest.xml
+
+# Node.js Tools for Visual Studio
+.ntvs_analysis.dat
+
+# Typescript
+*.tsbuildinfo
+
+# Visual Studio 6
+*.aps
+*.clw
+*.dep
+*.dsp
+*.dsw
+*.ncb
+*.opt
+*.plg
+*.rc2
+
+# Visual Studio 2015+ cache/options
+*.vsidx
+*.dbmdl
+*.dbproj
+*.dbmdl
+*.dbproj
+*.dbmdl
+*.dbproj
+*.dbmdl
+*.dbproj
+
+# Backup & temp files
+*.bak
+*.tmp
+*.temp
+.~*
+~*
+._*
+
+# Logs
+*.log
+
+# Thumbs.db
+Thumbs.db
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.user.*
