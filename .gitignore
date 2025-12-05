@@ -14,9 +14,6 @@ obj/
 .project
 .directory
 
-# Visual Studio 2015/2017 cache/options
-.vs/
-
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -28,17 +25,6 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
-
-# Visual Studio 2015+ cache/options
-*.vsidx
-*.dbmdl
-*.dbproj
-*.dbmdl
-*.dbproj
-*.dbmdl
-*.dbproj
-*.dbmdl
-*.dbproj
 
 # MSTest test Results
 [TestResults]/
@@ -115,17 +101,6 @@ ModelManifest.xml
 *.plg
 *.rc2
 
-# Visual Studio 2015+ cache/options
-*.vsidx
-*.dbmdl
-*.dbproj
-*.dbmdl
-*.dbproj
-*.dbmdl
-*.dbproj
-*.dbmdl
-*.dbproj
-
 # Backup & temp files
 *.bak
 *.tmp
@@ -145,3 +120,8 @@ Thumbs.db
 *.userosscache
 *.suo
 *.user.*
+
+# Configuration files containing sensitive information
+appsettings.json
+appsettings.Development.json
+appsettings.*.json
