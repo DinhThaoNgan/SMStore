@@ -125,3 +125,6 @@ Thumbs.db
 appsettings.json
 appsettings.Development.json
 appsettings.*.json
+
+# EF Core Migrations
+Migrations/
