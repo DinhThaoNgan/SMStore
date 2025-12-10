@@ -1,0 +1,13 @@
+@model List<CuaHangBanSach.Models.Category>
+
+<div class="list-group">
+    <a href="/Product" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["action"].ToString() == "Index" && ViewContext.RouteData.Values["controller"].ToString() == "Product" ? "active" : "")">
+        Tất cả sản phẩm
+    </a>
+    @foreach (var category in Model)
+    {
+        <a href="/Product?categoryId=@category.Id" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["categoryId"]?.ToString() == category.Id.ToString() ? "active" : "")">
+            @category.Name
+        </a>
+    }
+</div>

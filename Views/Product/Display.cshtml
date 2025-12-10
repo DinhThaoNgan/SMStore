@@ -1,0 +1,278 @@
+@model CuaHangBanSach.ViewModels.ProductDetailViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var simpleVariants = Model.Variants?.Select(v => new {
+        color = v.Color,
+        size = v.Size,
+        stockQuantity = v.StockQuantity,
+        imageUrl = v.ImageUrl
+    });
+
+    var allImages = new List<string>();
+    if (!string.IsNullOrEmpty(Model.ImageUrl)) allImages.Add(Model.ImageUrl);
+    if (Model.Variants != null)
+    {
+        allImages.AddRange(Model.Variants
+            .Where(v => !string.IsNullOrEmpty(v.ImageUrl))
+            .Select(v => v.ImageUrl!));
+    }
+    if (Model.Images != null)
+    {
+        allImages.AddRange(Model.Images
+            .Where(img => !string.IsNullOrEmpty(img.Url))
+            .Select(img => img.Url!));
+    }
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6 text-center">
+            <img id="mainImage" src="@Model.ImageUrl" class="img-fluid border mb-3" style="max-height: 350px; object-fit: contain;" />
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                @foreach (var img in allImages.Distinct())
+                {
+                    <img src="@img" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;" onclick="setMainImage('@img')" />
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h2 class="fw-bold text-dark mb-3">@Model.Name</h2>
+            <h4 class="fw-bold text-danger">
+                Giá: @Model.Price.ToString("N0") VND
+            </h4>
+
+            @if (Model.Variants != null && Model.Variants.Any())
+            {
+                <hr />
+                <h5>Chọn phiên bản:</h5>
+                <div class="mb-3 d-flex flex-wrap gap-2" id="colorOptions">
+                    @foreach (var color in Model.Variants.Select(v => v.Color).Distinct())
+                    {
+                        <button type="button" class="btn btn-outline-dark variant-color" data-color="@color">@color</button>
+                    }
+                </div>
+
+                <h5>Chọn phân loại:</h5>
+                <div class="mb-3 d-flex flex-wrap gap-2" id="sizeOptions">
+                    @foreach (var size in Model.Variants.Select(v => v.Size).Distinct())
+                    {
+                        <button type="button" class="btn btn-outline-secondary variant-size" data-size="@size">@size</button>
+                    }
+                </div>
+
+                <div id="stockInfo" class="mt-2 fw-bold text-primary"></div>
+                <div id="variantError" class="text-danger small"></div>
+
+                <div id="quantitySection" class="mb-3" style="display:none;">
+                    <label for="quantityInput" class="form-label fw-bold">Số lượng:</label>
+                    <div class="input-group" style="width:130px;">
+                        <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(-1)">-</button>
+                        <input type="number" id="quantityInput" class="form-control text-center" value="0" min="0" />
+                        <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(1)">+</button>
+                    </div>
+                </div>
+            }
+
+            <button type="button" class="btn btn-success fw-bold" onclick="buyNow()">🛒 Mua ngay</button>
+            <button type="button" class="btn btn-outline-primary mt-2" onclick="addToCartAjax()">➕ Thêm vào giỏ hàng</button>
+        </div>
+    </div>
+
+    <!-- Mô tả sản phẩm -->
+    <div class="mt-5">
+        <h4 class="fw-bold">📄 Mô tả sản phẩm</h4>
+        <p style="white-space: pre-line;">@Model.Description</p>
+    </div>
+
+
+
+    <!-- Sản phẩm liên quan -->
+
+
+
+    <hr class="my-5" />
+    <h4 class="text-center mb-4">🌀 Sản phẩm liên quan</h4>
+
+    <div id="relatedCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="30000">
+        <div class="carousel-inner">
+            @for (int i = 0; i < Model.RelatedProducts.Count; i += 5)
+            {
+                var chunk = Model.RelatedProducts.Skip(i).Take(5).ToList();
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    <div class="d-flex justify-content-center gap-4 flex-wrap">
+                        @foreach (var product in chunk)
+                        {
+                            <div class="card" style="width: 180px;">
+                                <a href="/Product/Display/@product.Id" class="text-decoration-none text-dark">
+                                    <img src="@product.ImageUrl" class="card-img-top" style="height: 140px; object-fit: contain;" />
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">@product.Name</h6>
+                                        <p class="mb-1 text-primary fw-semibold">@product.Price.ToString("N0") VND</p>
+                                        <small class="text-muted d-block">Nhà xuất bản: @product.Brand?.Name</small>
+                                        <small class="text-muted d-block">Thể loại: @product.Category?.Name</small>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#relatedCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#relatedCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const variants = @Html.Raw(JsonSerializer.Serialize(simpleVariants));
+        let selectedColor = null;
+        let selectedSize = null;
+        let currentStock = 0;
+
+        function setMainImage(url) {
+            document.getElementById("mainImage").src = url;
+        }
+
+        function resetToDefault() {
+            setMainImage('@Model.ImageUrl');
+            document.getElementById('stockInfo').innerText = "";
+            document.getElementById('variantError').innerText = "";
+            document.getElementById('quantitySection').style.display = 'none';
+            document.getElementById('quantityInput').value = 0;
+            disableActionButtons(true);
+        }
+
+        function updateDisplay() {
+            const matched = variants.find(v => v.color === selectedColor && v.size === selectedSize);
+            if (matched) {
+                setMainImage(matched.imageUrl || '@Model.ImageUrl');
+                currentStock = matched.stockQuantity;
+
+                if (currentStock <= 0) {
+                    document.getElementById("stockInfo").innerText = "❌ Biến thể này đã hết hàng.";
+                    document.getElementById("variantError").innerText = "Sản phẩm không còn hàng trong kho.";
+                    document.getElementById("quantitySection").style.display = "none";
+                    disableActionButtons(true);
+                    return;
+                }
+
+                fetch('/ShoppingCart/GetVariantQuantityInCart?productId=@Model.Id&color=' + encodeURIComponent(selectedColor) + '&size=' + encodeURIComponent(selectedSize))
+                    .then(res => res.json())
+                    .then(inCart => {
+                        const remaining = currentStock - inCart;
+
+                        if (remaining <= 0) {
+                            document.getElementById("stockInfo").innerText = "⚠️ Biến thể còn hàng nhưng bạn đã thêm tối đa vào giỏ.";
+                            document.getElementById("variantError").innerText = "Bạn đã thêm hết số lượng sản phẩm này vào giỏ hàng.";
+                            document.getElementById("quantitySection").style.display = "none";
+                            disableActionButtons(true);
+                        } else {
+                            document.getElementById("stockInfo").innerText = "Tồn kho còn: " + remaining;
+                            document.getElementById("variantError").innerText = "";
+                            document.getElementById("quantitySection").style.display = "block";
+                            document.getElementById("quantityInput").value = 1;
+                            disableActionButtons(false);
+                        }
+                    });
+            } else {
+                resetToDefault();
+                document.getElementById('variantError').innerText = "❌ Không tìm thấy biến thể phù hợp.";
+            }
+        }
+
+        function disableActionButtons(disable) {
+            document.querySelector("button[onclick='buyNow()']").disabled = disable;
+            document.querySelector("button[onclick='addToCartAjax()']").disabled = disable;
+        }
+
+        function updateButtons(className, selectedValue) {
+            document.querySelectorAll('.' + className).forEach(btn => {
+                btn.classList.remove('active', 'btn-dark', 'btn-primary');
+                btn.classList.add('btn-outline-' + (className === 'variant-color' ? 'dark' : 'secondary'));
+                if (btn.getAttribute('data-' + className.split('-')[1]) === selectedValue) {
+                    btn.classList.remove('btn-outline-' + (className === 'variant-color' ? 'dark' : 'secondary'));
+                    btn.classList.add('active', className === 'variant-color' ? 'btn-dark' : 'btn-primary');
+                }
+            });
+        }
+
+        document.querySelectorAll('.variant-color').forEach(btn => {
+            btn.addEventListener('click', function () {
+                selectedColor = (selectedColor === this.getAttribute('data-color')) ? null : this.getAttribute('data-color');
+                updateButtons('variant-color', selectedColor);
+                updateDisplay();
+            });
+        });
+
+        document.querySelectorAll('.variant-size').forEach(btn => {
+            btn.addEventListener('click', function () {
+                selectedSize = (selectedSize === this.getAttribute('data-size')) ? null : this.getAttribute('data-size');
+                updateButtons('variant-size', selectedSize);
+                updateDisplay();
+            });
+        });
+
+        function changeQuantity(delta) {
+            const input = document.getElementById('quantityInput');
+            let val = parseInt(input.value) || 0;
+            val = Math.min(currentStock, Math.max(0, val + delta));
+            input.value = val;
+        }
+
+        function validateVariantSelection() {
+            const quantity = parseInt(document.getElementById('quantityInput')?.value || 0);
+            if (!selectedColor || !selectedSize || quantity <= 0 || quantity > currentStock) {
+                document.getElementById('variantError').innerText = "❌ Vui lòng chọn phiên bản, phân loại và số lượng hợp lệ.";
+                return false;
+            }
+            return true;
+        }
+
+        function addToCartAjax() {
+            if (!validateVariantSelection()) return;
+            const data = {
+                productId: @Model.Id,
+                quantity: parseInt(document.getElementById('quantityInput').value),
+                color: selectedColor,
+                size: selectedSize
+            };
+            fetch('/ShoppingCart/AddToCartWithVariant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(res => {
+                if (res.ok && window.updateCartIcon) window.updateCartIcon();
+            });
+        }
+
+        function buyNow() {
+            if (!validateVariantSelection()) return;
+            const data = {
+                productId: @Model.Id,
+                quantity: parseInt(document.getElementById('quantityInput').value),
+                color: selectedColor,
+                size: selectedSize
+            };
+            fetch('/ShoppingCart/AddToCartWithVariant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(res => {
+                if (res.ok) {
+                    window.location.href = "/ShoppingCart/Index";
+                }
+            });
+        }
+    </script>
+}

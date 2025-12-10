@@ -1,49 +1,100 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CuaHangBanSach</title>
+    <title>CSES - Quản lí bán sách</title>
+    @RenderSection("Styles", required: false)
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CuaHangBanSach.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CuaHangBanSach</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg" style="background-color: #ffc107;">
         <div class="container">
-            &copy; 2025 - CuaHangBanSach - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a class="navbar-brand fw-bold text-dark" asp-area="" asp-controller="Product" asp-action="Index">Trang Chủ</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav me-auto"></ul>
+
+                <form class="d-flex flex-grow-1 mx-3" asp-controller="Product" asp-action="Index" method="get" style="max-width: 500px;">
+                    <input class="form-control me-2" type="search" name="search" placeholder="Tìm sản phẩm..." aria-label="Search" />
+                    <button class="btn btn-outline-dark" type="submit">Tìm</button>
+                </form>
+
+                <a href="/ShoppingCart" class="btn btn-dark position-relative me-3">
+                    <i class="bi bi-cart"></i>
+                    <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        0
+                    </span>
+                </a>
+
+                <partial name="_LoginPartial" />
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            @{
+                var path = HttpContextAccessor.HttpContext?.Request?.Path.ToString()?.ToLower() ?? "";
+                var isManagePage = path.StartsWith("/identity/account/manage");
+            }
+
+            @if (isManagePage)
+            {
+                <div class="row">
+                    <div class="col-md-3 border-end pe-md-4 mb-4">
+                        <partial name="/Areas/Identity/Pages/Account/Manage/_ManageNav.cshtml" />
+                    </div>
+                    <div class="col-md-9 ps-md-4">
+                        @RenderBody()
+                    </div>
+                </div>
+            }
+            else
+            {
+                @RenderBody()
+            }
+        </div>
+    </main>
+
+    <footer style="background: #222; color: #fff; padding: 40px 0; font-size: 18px;">
+        <div style="max-width: 1200px; margin: auto; padding: 0 20px;">
+            <p class="text-center m-0">
+                Đây là website phục vụ cho môn <strong>Quản lí dự án Công nghệ thông tin</strong>, dùng để thực hành phát triển & triển khai website.
+            </p>
+        </div>
+        <div class="text-center mt-3" style="font-size: 13px; color: #aaa;">
+            © 2025 CSES - Quản lí dự án Công nghệ thông tin - HUTECH.
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function updateCartIcon() {
+            fetch('/ShoppingCart/Quantity')
+                .then(res => res.json())
+                .then(count => {
+                    const badge = document.getElementById("cartCount");
+                    if (badge) badge.innerText = count;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateCartIcon);
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
