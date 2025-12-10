@@ -18,6 +18,7 @@ namespace CuaHangBanSach.Controllers
             _context = context;
         }
 
+        // KAN-FE-03: Tạo trang chi tiết sản phẩm
         public async Task<IActionResult> Index(string? search, string? sort, int? categoryId, int? brandId, int page = 1)
         {
             int pageSize = 6;
@@ -78,6 +79,7 @@ namespace CuaHangBanSach.Controllers
             return View(viewModel);
         }
 
+        // KAN-FE-03: Tạo trang chi tiết sản phẩm
         public async Task<IActionResult> Display(int id)
         {
             var product = await _productRepository.GetByIdWithVariantsAsync(id);
