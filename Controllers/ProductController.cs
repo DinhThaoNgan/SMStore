@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using CuaHangBanSach.Models;
 using CuaHangBanSach.Repository;
+using CuaHangBanSach.ViewModels;
 
 namespace CuaHangBanSach.Controllers
 {
@@ -24,7 +25,12 @@ namespace CuaHangBanSach.Controllers
             var products = await _productRepository.GetAllAsync();
 
             // Lấy biến thể cho mỗi sản phẩm (nếu chưa có)
-            // Note: ProductVariant và ProductImage sẽ được thêm vào sau trong các subtask tiếp theo
+            foreach (var product in products)
+            {
+                product.Variants = _context.ProductVariants
+                    .Where(v => v.ProductId == product.Id)
+                    .ToList();
+            }
 
             // Lọc theo danh mục
             if (categoryId.HasValue)
@@ -57,27 +63,43 @@ namespace CuaHangBanSach.Controllers
                 .Take(pageSize)
                 .ToList();
 
-            // Note: ProductListViewModel sẽ được thêm vào sau trong các subtask tiếp theo
-            // Tạm thời trả về danh sách sản phẩm trực tiếp
-            ViewBag.SearchTerm = search;
-            ViewBag.Sort = sort;
-            ViewBag.CategoryId = categoryId;
-            ViewBag.BrandId = brandId;
-            ViewBag.PageNumber = page;
-            ViewBag.PageSize = pageSize;
-            ViewBag.TotalRecords = totalRecords;
+            var viewModel = new ProductListViewModel
+            {
+                Products = pagedProducts,
+                SearchTerm = search,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                Sort = sort,
+                CategoryId = categoryId,
+                BrandId = brandId
+            };
 
-            return View(pagedProducts);
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Display(int id)
         {
-            var product = await _productRepository.GetByIdAsync(id);
+            var product = await _productRepository.GetByIdWithVariantsAsync(id);
             if (product == null) return NotFound();
 
-            // Note: ProductDetailViewModel sẽ được thêm vào sau trong các subtask tiếp theo
-            // Tạm thời trả về sản phẩm trực tiếp
-            return View(product);
+            var related = await _productRepository.GetRelatedProducts(product);
+
+            var viewModel = new ProductDetailViewModel
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                ImageUrl = product.ImageUrl,
+                Category = product.Category,
+                Brand = product.Brand,
+                Variants = product.Variants ?? new List<ProductVariant>(),
+                Images = product.Images ?? new List<ProductImage>(),
+                RelatedProducts = related ?? new List<Product>()
+            };
+
+            return View(viewModel);
         }
     }
 }

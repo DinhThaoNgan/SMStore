@@ -28,6 +28,9 @@ builder.Services.AddScoped<IProductRepository, EFProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
 builder.Services.AddScoped<IBrandRepository, EFBrandRepository>();
 
+// Register View Components
+builder.Services.AddScoped<SidebarViewComponent>();
+
 // KAN-67: Configure session and cookie management
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

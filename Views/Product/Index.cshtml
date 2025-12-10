@@ -1,0 +1,79 @@
+@model CuaHangBanSach.ViewModels.ProductListViewModel
+
+@{
+    ViewData["Title"] = "Trang Bán Hàng";
+    int numOfQuantity = 1;
+}
+
+<partial name="_SiderPartial" />
+
+<h2 class="text-center mb-4 text-uppercase fw-bold">Sản phẩm nổi bật</h2>
+
+<div class="row">
+    <div class="col-sm-3">
+        <partial name="_SidebarPartial" />
+    </div>
+
+    <div class="col-lg-9">
+        <!-- 🔽 Bộ lọc sắp xếp -->
+        <form method="get" class="row mb-3">
+            <input type="hidden" name="categoryId" value="@Model.CategoryId" />
+            <input type="hidden" name="brandId" value="@Model.BrandId" />
+
+    <div class="col-md-4">
+                <select class="form-select" name="sort" onchange="this.form.submit()">
+                    @Html.Raw($"<option value=\"\" {(string.IsNullOrEmpty(Model.Sort) ? "selected" : "")}>-- Sắp xếp theo --</option>")
+                    @Html.Raw($"<option value=\"price_asc\" {(Model.Sort == "price_asc" ? "selected" : "")}>Giá tăng dần</option>")
+                    @Html.Raw($"<option value=\"price_desc\" {(Model.Sort == "price_desc" ? "selected" : "")}>Giá giảm dần</option>")
+                    @Html.Raw($"<option value=\"newest\" {(Model.Sort == "newest" ? "selected" : "")}>Mới nhất</option>")
+                    @Html.Raw($"<option value=\"oldest\" {(Model.Sort == "oldest" ? "selected" : "")}>Cũ nhất</option>")
+                </select>
+    </div>
+
+            <div class="col-md-2">
+                <a href="@Url.Action("Index", "Product")" class="btn btn-outline-secondary w-100">
+                    Xoá lọc
+                </a>
+            </div>
+        </form>
+
+        <!-- 🛍️ Danh sách sản phẩm -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            @foreach (var product in Model.Products)
+            {
+                <div class="col mb-3">
+                    <div class="card text-center border-0 shadow-sm h-100">
+                        <a href="@Url.Action("Display", "Product", new { id = product.Id })" class="text-decoration-none text-dark">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? Url.Content("~/images/no-image.png") : product.ImageUrl)"
+                                 class="card-img-top p-3" alt="@product.Name"
+                                 style="height: 220px; object-fit: contain;" />
+                        </a>
+
+                        <div class="card-body">
+                            <h5 class="text-warning fw-bold mb-2">@string.Format("{0:N0} VND", product.Price)</h5>
+                            <h6 class="mb-1 fw-semibold">@product.Name</h6>
+                            <p class="mb-1 text-muted">Thể loại: @product.Category?.Name</p>
+                            <p class="mb-3 text-muted">Nhà xuất bản: @product.Brand?.Name</p>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- 📄 Phân trang -->
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link"
+                           href="?page=@i&sort=@Model.Sort&categoryId=@Model.CategoryId&brandId=@Model.BrandId">
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
