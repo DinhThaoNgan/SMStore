@@ -1,0 +1,10 @@
+@model IEnumerable<string>
+
+@if (Model != null && Model.Any())
+{
+    <span class="badge bg-success">@string.Join(", ", Model)</span>
+}
+else
+{
+    <span class="text-muted">Chưa có</span>
+}
