@@ -19,4 +19,5 @@ namespace CuaHangBanSach.Models
 
         public bool IsActive => DateTime.Now >= StartDate && DateTime.Now <= EndDate;
     }
+
 }
