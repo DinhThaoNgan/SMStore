@@ -27,6 +27,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<IProductRepository, EFProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
 builder.Services.AddScoped<IBrandRepository, EFBrandRepository>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 
 // Register View Components
 builder.Services.AddScoped<SidebarViewComponent>();

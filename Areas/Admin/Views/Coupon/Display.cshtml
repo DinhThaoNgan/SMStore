@@ -1,0 +1,42 @@
+@model CuaHangBanSach.Models.Coupon
+
+@{
+    ViewData["Title"] = "Chi tiết mã giảm giá";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title text-primary mb-3">
+                        <i class="bi bi-tag-fill me-2"></i> Mã giảm giá: <strong>@Model.Code</strong>
+                    </h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Số tiền giảm:</strong> @Model.DiscountAmount @(@Model.IsPercentage ? "%" : "₫")
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Hình thức:</strong> @(Model.IsPercentage ? "Phần trăm" : "Số tiền cố định")
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Ngày bắt đầu:</strong> @Model.StartDate.ToString("dd/MM/yyyy")
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Ngày kết thúc:</strong> @Model.EndDate.ToString("dd/MM/yyyy")
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Trạng thái:</strong> @(Model.IsActive ? "🔓 Đang hiệu lực" : "🔒 Hết hạn hoặc chưa bắt đầu")
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2 px-4">✏️ Sửa</a>
+                <a asp-action="Index" class="btn btn-secondary px-4">← Quay lại danh sách</a>
+            </div>
+        </div>
+    </div>
+</div>
