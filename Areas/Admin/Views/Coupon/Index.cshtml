@@ -1,0 +1,82 @@
+@model CuaHangBanSach.ViewModels.CouponListViewModel
+
+@{
+    ViewData["Title"] = "Danh sách mã giảm giá";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Danh sách mã giảm giá</h2>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Tìm mã giảm giá..." value="@Model.SearchTerm" />
+        <button type="submit" class="btn btn-primary">Tìm</button>
+    </div>
+</form>
+
+<div class="d-flex justify-content-end mb-3">
+    <a asp-action="Create" class="btn btn-success px-4">➕ Thêm mới</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th class="text-center">#</th>
+                <th>Mã</th>
+                <th>Loại</th>
+                <th>Giá trị</th>
+                <th>Bắt đầu</th>
+                <th>Kết thúc</th>
+                <th>Hiệu lực</th>
+                <th class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Items.Any())
+            {
+                var index = (Model.PageNumber - 1) * Model.PageSize + 1;
+                foreach (var coupon in Model.Items)
+                {
+                    <tr>
+                        <td class="text-center">@index</td>
+                        <td>@coupon.Code</td>
+                        <td>@(coupon.IsPercentage ? "Phần trăm" : "Cố định")</td>
+                        <td>
+                            @(coupon.IsPercentage
+                                                ? $"{coupon.DiscountAmount}%"
+                                                : $"{coupon.DiscountAmount:N0} ₫")
+                </td>
+                <td>@coupon.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@coupon.EndDate.ToString("dd/MM/yyyy")</td>
+                <td class="fw-bold @(coupon.IsActive ? "text-success" : "text-danger")">
+                    @(coupon.IsActive ? "Còn hiệu lực" : "Hết hạn")
+                </td>
+                <td class="text-center">
+                    <a asp-action="Edit" asp-route-id="@coupon.Id" class="btn btn-warning btn-sm me-1">Sửa</a>
+                    <a asp-action="Display" asp-route-id="@coupon.Id" class="btn btn-info btn-sm me-1">Chi tiết</a>
+                    <a asp-action="Delete" asp-route-id="@coupon.Id" class="btn btn-danger btn-sm"
+                       onclick="return confirm('Xoá mã này?');">Xoá</a>
+                </td>
+            </tr>
+                        index++;
+                }
+            }
+            else
+            {
+                <tr><td colspan="8" class="text-center text-muted">Không có mã giảm giá nào.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<nav>
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link" href="?page=@i&search=@Model.SearchTerm">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
