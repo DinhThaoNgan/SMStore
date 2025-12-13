@@ -1,0 +1,21 @@
+@using CuaHangBanSach.Models
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+
+<div class="list-group shadow-sm rounded-3 overflow-hidden">
+    <a class="list-group-item list-group-item-action d-flex align-items-center gap-2 fw-semibold @(ManageNavPages.IndexNavClass(ViewContext))"
+       asp-page="./Index">
+        <i class="fa-solid fa-user"></i> Thông tin cá nhân
+    </a>
+    <a class="list-group-item list-group-item-action d-flex align-items-center gap-2 fw-semibold @(ManageNavPages.ChangePasswordNavClass(ViewContext))"
+       asp-page="./ChangePassword">
+        <i class="fa-solid fa-lock"></i> Thay đổi mật khẩu
+    </a>
+    <a class="list-group-item list-group-item-action d-flex align-items-center gap-2 fw-semibold @(ManageNavPages.OrdersNavClass(ViewContext))"
+       asp-page="./Orders">
+        <i class="fa-solid fa-receipt"></i> Đơn mua
+    </a>
+</div>
