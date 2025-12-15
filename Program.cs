@@ -6,34 +6,19 @@ using CuaHangBanSach.Repository;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// Database configuration
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddHttpContextAccessor();
-
+// Identity configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddDefaultTokenProviders()
-    .AddDefaultUI()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = $"/Identity/Account/Login";
-    options.LogoutPath = $"/Identity/Account/Logout";
-    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
-});
-
-// Register repositories
-builder.Services.AddScoped<IProductRepository, EFProductRepository>();
-builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
-builder.Services.AddScoped<IBrandRepository, EFBrandRepository>();
-builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-
-// Register View Components
-builder.Services.AddScoped<SidebarViewComponent>();
-
-// KAN-67: Configure session and cookie management
-builder.Services.AddDistributedMemoryCache();
+// Session configuration
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -41,8 +26,21 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
+// Register repositories
+builder.Services.AddScoped<IProductRepository, EFProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
+builder.Services.AddScoped<IBrandRepository, EFBrandRepository>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+// Đăng ký SupplierRepository
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+
+// Cookie configuration
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
 
 var app = builder.Build();
 
@@ -50,23 +48,24 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseSession();
 app.UseRouting();
 
+// Authentication and Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Session middleware
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-    
 app.MapRazorPages();
 
 app.Run();

@@ -1,0 +1,175 @@
+@model CuaHangBanSach.Models.ImportReceipt
+@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Tạo đơn nhập";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var products = ViewBag.Products as List<CuaHangBanSach.Models.Product>;
+    var productsJson = JsonConvert.SerializeObject(products.Select(p => new
+    {
+        id = p.Id,
+        name = p.Name,
+        image = p.ImageUrl,
+        variants = p.Variants.Select(v => new
+        {
+            id = v.Id,
+            color = v.Color,
+            size = v.Size
+        })
+    }));
+}
+
+<h2 class="text-center py-3">📥 Tạo đơn nhập hàng</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<form method="post" asp-action="Add">
+    <div class="mb-3">
+        <label class="form-label">Nhà cung cấp</label>
+        <select asp-for="SupplierId" class="form-select" asp-items="@(new SelectList(ViewBag.Suppliers, "Id", "Name"))" required>
+            <option value="">-- Chọn nhà cung cấp --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ghi chú</label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+    </div>
+
+    <hr />
+    <h5>Danh sách sản phẩm nhập</h5>
+    <table class="table table-bordered" id="productTable">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Sản phẩm</th>
+                <th>Biến thể</th>
+                <th>Số lượng</th>
+                <th>Giá nhập</th>
+                <th>Thành tiền</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="text-end mb-3">
+        <button type="button" id="addRow" class="btn btn-secondary">+ Thêm sản phẩm</button>
+    </div>
+
+    <div class="text-end fw-bold">Tổng cộng: <span id="grandTotal">0 VND</span></div>
+
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary px-5">Lưu đơn nhập</button>
+        <a asp-action="Index" class="btn btn-secondary ms-3">Hủy</a>
+    </div>
+</form>
+
+<!-- TEMPLATE ẨN -->
+<template id="product-row-template">
+    <tr>
+        <input type="hidden" name="Details.Index" value="__index__" />
+        <td><img src="" class="img-thumbnail" style="width: 80px; height: auto;" /></td>
+        <td>
+            <select class="form-select product-select">
+                <option value="">-- Chọn sản phẩm --</option>
+                @foreach (var product in products)
+                {
+                    <option value="@product.Id" data-image="@product.ImageUrl">@product.Name</option>
+                }
+            </select>
+        </td>
+        <td>
+            <select class="form-select variant-select" name="Details[__index__].ProductVariantId" required>
+                <option value="">-- Chọn biến thể --</option>
+            </select>
+        </td>
+        <td><input type="number" name="Details[__index__].Quantity" class="form-control quantity" min="1" value="1" required /></td>
+        <td><input type="number" name="Details[__index__].UnitPrice" class="form-control unitprice" min="0" step="1000" value="0" required /></td>
+        <td class="line-total">0 VND</td>
+        <td><button type="button" class="btn btn-danger remove-row">X</button></td>
+    </tr>
+</template>
+
+@section Scripts {
+    <script>
+        const products = @Html.Raw(productsJson);
+
+        function updateVariantSelect(productId, variantSelect) {
+            variantSelect.innerHTML = '<option value="">-- Chọn biến thể --</option>';
+            const product = products.find(p => p.id == productId);
+            if (product) {
+                for (const v of product.variants) {
+                    variantSelect.innerHTML += `<option value="${v.id}">${v.color} / ${v.size}</option>`;
+                }
+            }
+        }
+
+        function updateLineTotal(row) {
+            const qty = parseInt(row.querySelector('.quantity').value || 0);
+            const price = parseFloat(row.querySelector('.unitprice').value || 0);
+            const total = qty * price;
+            row.querySelector('.line-total').textContent = total.toLocaleString('vi-VN') + ' VND';
+            updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            let total = 0;
+            document.querySelectorAll('.line-total').forEach(td => {
+                const clean = td.textContent.replace(/[^\d]/g, '');
+                total += parseInt(clean || 0);
+            });
+            document.getElementById('grandTotal').textContent = total.toLocaleString('vi-VN') + ' VND';
+        }
+
+        document.getElementById('addRow').addEventListener('click', function () {
+            const tbody = document.querySelector('#productTable tbody');
+            const index = tbody.children.length;
+            const template = document.getElementById('product-row-template').innerHTML;
+            const newRowHtml = template.replaceAll('__index__', index);
+            const tempContainer = document.createElement('tbody');
+            tempContainer.innerHTML = newRowHtml;
+            const newRow = tempContainer.firstElementChild;
+
+            tbody.appendChild(newRow);
+        });
+
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('product-select')) {
+                const row = e.target.closest('tr');
+                const variantSelect = row.querySelector('.variant-select');
+                const image = row.querySelector('img');
+                updateVariantSelect(e.target.value, variantSelect);
+                image.src = e.target.selectedOptions[0].dataset.image || '';
+            }
+
+            if (e.target.classList.contains('quantity') || e.target.classList.contains('unitprice')) {
+                updateLineTotal(e.target.closest('tr'));
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-row')) {
+                const row = e.target.closest('tr');
+                if (row.parentElement.children.length > 1) {
+                    row.remove();
+                    updateGrandTotal();
+                }
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('addRow').click();
+        });
+    </script>
+}
