@@ -1,0 +1,124 @@
+@model CuaHangBanSach.Models.ImportReceipt
+@{
+    Layout = null;
+
+    var vnTime = Model.ImportDate.Kind == DateTimeKind.Utc
+        ? TimeZoneInfo.ConvertTimeFromUtc(Model.ImportDate, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"))
+        : Model.ImportDate;
+
+    string baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Hóa đơn nhập hàng #@Model.Id</title>
+    <style>
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 14px;
+            padding: 25px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin: 4px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #999;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .text-right {
+            text-align: right;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h2>📥 HÓA ĐƠN NHẬP HÀNG</h2>
+
+    <p><strong>Mã hóa đơn:</strong> @Model.Id</p>
+    <p><strong>Nhà cung cấp:</strong> @Model.Supplier?.Name</p>
+    <p><strong>Ngày nhập:</strong> @vnTime.ToString("dd/MM/yyyy HH:mm")</p>
+    <p><strong>Ghi chú:</strong> @(string.IsNullOrWhiteSpace(Model.Notes) ? "Không" : Model.Notes)</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Ảnh</th>
+                <th>Sản phẩm</th>
+                <th>Biến thể</th>
+                <th>Số lượng</th>
+                <th>Giá nhập</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Details.Count; i++)
+            {
+                var d = Model.Details[i];
+                var imgUrl = d.ProductVariant?.ImageUrl ?? d.ProductVariant?.Product?.ImageUrl;
+                var fullImgUrl = string.IsNullOrEmpty(imgUrl) ? "" : baseUrl + imgUrl;
+
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(fullImgUrl))
+                        {
+                            <img src="@fullImgUrl" alt="ảnh" />
+                        }
+                    </td>
+                    <td>@d.ProductVariant?.Product?.Name</td>
+                    <td>@d.ProductVariant?.Color / @d.ProductVariant?.Size</td>
+                    <td>@d.Quantity</td>
+                    <td>@($"{d.UnitPrice:N0} VND")</td>
+                    <td>@($"{d.TotalPrice:N0} VND")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="text-right">
+        Tổng tiền: @($"{Model.TotalAmount:N0} VND")
+    </div>
+
+    <div class="footer">
+        Cảm ơn quý đối tác!
+    </div>
+</body>
+</html>

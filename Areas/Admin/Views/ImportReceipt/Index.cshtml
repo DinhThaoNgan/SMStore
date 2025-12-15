@@ -1,0 +1,129 @@
+@model CuaHangBanSach.ViewModels.ImportReceiptListViewModel
+@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Danh sách hóa đơn nhập";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="px-3 py-5">
+    <h2 class="text-center mb-4 fw-bold">
+        <i class="bi bi-truck"></i> Quản lý Hóa đơn nhập
+    </h2>
+
+    <form method="get" class="mb-4 d-flex justify-content-center">
+        <input type="text" name="search" value="@Model.SearchTerm" class="form-control w-25 me-2" placeholder="Tìm theo nhà cung cấp" />
+        <button type="submit" class="btn btn-dark">Tìm kiếm</button>
+    </form>
+
+    <div class="text-end mb-3">
+        <a asp-action="Add" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Tạo đơn nhập mới
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
+    @if (!Model.Items.Any())
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i> Chưa có hóa đơn nhập nào.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow rounded-3 overflow-hidden">
+            <table class="table table-hover align-middle mb-0 bg-white">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>Nhà cung cấp</th>
+                        <th>Ngày nhập</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    @foreach (var receipt in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-semibold text-secondary">#@receipt.Id</td>
+                            <td>@receipt.Supplier?.Name</td>
+                            <td>@receipt.ImportDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@($"{receipt.TotalAmount:N0} VND")</td>
+                            <td>
+                                @{
+                                    var options = new List<SelectListItem>
+                                    {
+                                        new SelectListItem { Text = "Đã đặt", Value = "Đã đặt" },
+                                        new SelectListItem { Text = "Đã hoàn thành", Value = "Đã hoàn thành" },
+                                        new SelectListItem { Text = "Đã hủy", Value = "Đã hủy" }
+                                    };
+
+                                    if (receipt.Status == "Đã hoàn thành" || receipt.Status == "Đã hủy")
+                                    {
+                                        options.Clear();
+                                    }
+                                }
+
+                                @if (options.Any())
+                                {
+                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@receipt.Id" />
+                                        @Html.DropDownList("status", new SelectList(options, "Value", "Text", receipt.Status),
+                                            new { @class = "form-select form-select-sm w-auto d-inline", onchange = "this.form.submit()" })
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">@receipt.Status</span>
+                                }
+                            </td>
+                            <td>
+                                @if (receipt.Status == "Đã hoàn thành")
+                                {
+                                    <a asp-action="Print" asp-route-id="@receipt.Id" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                        🖨️ In
+                                    </a>
+                                }
+
+                                <a asp-action="Details" asp-route-id="@receipt.Id" class="btn btn-sm btn-outline-dark me-2">
+                                    <i class="bi bi-eye-fill"></i> Xem
+                                </a>
+
+                                @if (receipt.Status == "Đã hủy")
+                                {
+                                    <a asp-action="Delete" asp-route-id="@receipt.Id"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Bạn có chắc muốn xóa hóa đơn nhập này?');">
+                                        <i class="bi bi-trash3-fill"></i> Xoá
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="mt-4 d-flex justify-content-center">
+            <ul class="pagination">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="?page=@i&search=@Model.SearchTerm">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
