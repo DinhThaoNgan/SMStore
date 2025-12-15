@@ -19,6 +19,9 @@ namespace CuaHangBanSach.Models
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
+        // Thêm DbSet cho ImportReceipt và ImportReceiptDetail
+        public DbSet<ImportReceipt> ImportReceipts { get; set; }
+        public DbSet<ImportReceiptDetail> ImportReceiptDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
