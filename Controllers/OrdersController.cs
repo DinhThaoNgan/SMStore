@@ -1,93 +1,38 @@
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Rotativa.AspNetCore;
 using CuaHangBanSach.Models;
-using CuaHangBanSach.Repository;
 
-namespace CuaHangBanSach.Controllers
+public class OrdersController : Controller
 {
-    [Authorize]
-    public class OrdersController : Controller
+    private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public OrdersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IProductRepository _productRepository;
+        _context = context;
+        _userManager = userManager;
+    }
 
-        public OrdersController(
-            ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager,
-            IProductRepository productRepository)
-        {
-            _context = context;
-            _userManager = userManager;
-            _productRepository = productRepository;
-        }
+    [HttpGet]
+    public async Task<IActionResult> Print(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
 
-        // Hiển thị form checkout
-        public async Task<IActionResult> Checkout()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            ViewBag.User = user;
-            
-            // Trong subtask này, chúng ta chỉ cần implement cơ bản
-            // Chi tiết sẽ được thêm trong các subtask sau
-            
-            return View(new Order());
-        }
+        var order = await _context.Orders
+            .Include(o => o.ApplicationUser)
+            .Include(o => o.OrderDetails)
+                .ThenInclude(d => d.Product)
+            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == user.Id && o.Status == "Đã hoàn thành");
 
-        // Xử lý checkout
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Checkout(Order order)
-        {
-            // Trong subtask này, chúng ta chỉ cần implement cơ bản
-            // Chi tiết sẽ được thêm trong các subtask sau
-            
-            // Tạo một order mẫu để hiển thị trong view
-            var sampleOrder = new Order
-            {
-                Id = 12345,
-                OrderDate = DateTime.UtcNow,
-                TotalPrice = 1000000,
-                Status = "Pending",
-                CustomerName = "Nguyễn Văn A",
-                PhoneNumber = "0123456789",
-                ShippingAddress = "123 Đường ABC, Quận XYZ, TP HCM",
-                Notes = "Giao hàng trong giờ hành chính",
-                CouponCode = "DISCOUNT10",
-                DiscountAmount = 100000,
-                OrderDetails = new List<OrderDetail>
-                {
-                    new OrderDetail
-                    {
-                        Id = 1,
-                        ProductId = 1,
-                        Quantity = 2,
-                        Price = 500000,
-                        Color = "Đỏ",
-                        Size = "L",
-                        Product = new Product { Name = "Sản phẩm mẫu 1", ImageUrl = "/images/product1.jpg" }
-                    },
-                    new OrderDetail
-                    {
-                        Id = 2,
-                        ProductId = 2,
-                        Quantity = 1,
-                        Price = 300000,
-                        Color = "Xanh",
-                        Size = "M",
-                        Product = new Product { Name = "Sản phẩm mẫu 2", ImageUrl = "/images/product2.jpg" }
-                    }
-                }
-            };
-            
-            return View("OrderCompleted", sampleOrder);
-        }
+        if (order == null) return NotFound();
 
-        // Hiển thị đơn hàng đã hoàn thành
-        public IActionResult OrderCompleted(Order order)
+        return new ViewAsPdf("Print", order) // không phải đường dẫn, chỉ tên View!
         {
-            return View(order);
-        }
+            FileName = $"HoaDon_{order.Id}.pdf",
+            PageSize = Rotativa.AspNetCore.Options.Size.A4
+        };
     }
 }
