@@ -1,0 +1,145 @@
+@page
+@model OrdersModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Đơn hàng của tôi";
+    ViewData["ActivePage"] = ManageNavPages.Orders;
+}
+
+<h3 class="mb-4">📦 Đơn hàng của tôi</h3>
+
+<form method="get" class="mb-4">
+    <div class="input-group">
+        <input name="SearchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Tìm theo mã đơn hoặc tên sản phẩm..." />
+        <button class="btn btn-outline-primary" type="submit">🔍 Tìm</button>
+    </div>
+</form>
+
+@if (Model.ViewModel.Items.Any())
+{
+    foreach (var order in Model.ViewModel.Items)
+    {
+        var customer = order.ApplicationUser;
+        var statusClass = order.Status switch
+        {
+            "Đã hoàn thành" => "bg-success",
+            "Đã hủy" => "bg-secondary",
+            "Đang xử lý" => "bg-warning text-dark",
+            _ => "bg-light text-dark"
+        };
+
+        <div class="card shadow-sm mb-4 border-0 rounded-3">
+            <div class="card-header bg-primary text-white fw-semibold d-flex justify-content-between align-items-center">
+                <div>
+                    Mã đơn: #@order.Id – Ngày đặt: @order.OrderDate.ToString("dd/MM/yyyy")
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-light text-dark">@order.Status</span>
+                    <a asp-page="./Orders/Detail" asp-route-id="@order.Id" class="btn btn-outline-light btn-sm ms-2">
+                        🔍 Chi tiết
+                    </a>
+                    @if (order.Status == "Đã hoàn thành")
+                    {
+                        <a asp-area="" asp-controller="Orders" asp-action="Print" asp-route-id="@order.Id"
+                           class="btn btn-danger fw-semibold shadow-sm py-1 px-2 ms-2" style="font-size: 0.9rem;">
+                            🧾 In hóa đơn
+                        </a>
+                    }
+        </div>
+    </div>
+
+    <div class="card-body">
+        <p class="mb-2">
+            👤 <strong>Người nhận:</strong>
+            @(
+                        string.IsNullOrWhiteSpace(order.CustomerName)
+                        ? (string.IsNullOrWhiteSpace(customer?.FullName)
+                        ? customer?.UserName ?? "Không rõ"
+                        : customer.FullName)
+                        : order.CustomerName
+                        )
+        </p>
+        <p class="mb-2">
+            ☎️ <strong>SĐT:</strong>
+            @(string.IsNullOrWhiteSpace(order.PhoneNumber)
+                        ? (customer?.PhoneNumber ?? "Không rõ")
+                        : order.PhoneNumber)
+        </p>
+        <p class="mb-3">
+            📍 <strong>Địa chỉ:</strong> @order.ShippingAddress
+        </p>
+
+                <ul class="list-group list-group-flush border rounded">
+            @foreach (var item in order.OrderDetails)
+                    {
+                        var img = string.IsNullOrEmpty(item.ImageUrl) ? item.Product?.ImageUrl : item.ImageUrl;
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-3">
+                                <img src="@img"
+                                     style="width: 80px; height: 80px; object-fit: cover;"
+                                     class="rounded border" />
+                                <div>
+                                    <strong>@item.Product?.Name</strong>
+                                    <div class="text-muted small">Màu: @item.Color – Size: @item.Size</div>
+                                    <div class="text-muted small">SL: @item.Quantity</div>
+                                </div>
+                            </div>
+                            <span class="fw-bold text-danger">@($"{item.Price:N0} VND")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="card-footer text-end bg-light">
+                <strong>Tổng tiền:</strong> <span class="text-danger">@($"{order.TotalPrice:N0} VND")</span>
+
+                @if (order.Status != "Đang giao hàng" && order.Status != "Đã hoàn thành" && order.Status != "Đã hủy")
+                {
+                    <form method="post" asp-page-handler="Cancel" asp-route-id="@order.Id" class="d-inline">
+                        <button type="submit"
+                                class="btn btn-danger btn-sm ms-3"
+                                onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">
+                            ❌ Hủy đơn
+                        </button>
+                    </form>
+                }
+                else if (order.Status == "Đã hủy")
+                {
+                    <span class="badge bg-secondary ms-3">Đơn đã hủy</span>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Phân trang -->
+    <nav class="d-flex justify-content-center">
+        <ul class="pagination">
+            @if (Model.ViewModel.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-PageNumber="@(Model.ViewModel.PageNumber - 1)" asp-route-SearchTerm="@Model.ViewModel.SearchTerm">← Trước</a>
+                </li>
+            }
+
+            @for (int i = 1; i <= Model.ViewModel.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.ViewModel.PageNumber ? "active" : "")">
+                    <a class="page-link" asp-route-PageNumber="@i" asp-route-SearchTerm="@Model.ViewModel.SearchTerm">@i</a>
+                </li>
+            }
+
+            @if (Model.ViewModel.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-PageNumber="@(Model.ViewModel.PageNumber + 1)" asp-route-SearchTerm="@Model.ViewModel.SearchTerm">Tiếp →</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> Không tìm thấy đơn hàng nào phù hợp.
+    </div>
+}

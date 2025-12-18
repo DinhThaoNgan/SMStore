@@ -1,0 +1,227 @@
+@model CuaHangBanSach.Models.Order
+@using CuaHangBanSach.Extensions
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Thanh toán";
+    var cart = Context.Session.GetObjectFromJson<CuaHangBanSach.Models.ShoppingCart>("Cart") ?? new CuaHangBanSach.Models.ShoppingCart();
+    var user = ViewBag.User as CuaHangBanSach.Models.ApplicationUser;
+    var subtotal = cart.Items.Sum(i => i.Price * i.Quantity);
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center text-uppercase text-primary">Thanh toán đơn hàng</h2>
+
+    <!-- GIỎ HÀNG -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-info text-white"><strong>Sản phẩm trong giỏ</strong></div>
+        <div class="card-body">
+            @if (cart.Items.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Sản phẩm</th>
+                                <th>Biến thể</th>
+                                <th>Số lượng</th>
+                                <th>Giá</th>
+                                <th>Tổng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in cart.Items)
+                            {
+                                <tr>
+                                    <td><img src="@item.ImageUrl" class="img-thumbnail" style="max-width: 60px;" /></td>
+                                    <td class="text-start fw-semibold">@item.Name</td>
+                                    <td class="text-start">
+                                        <div>Màu: <strong>@item.Color</strong></div>
+                                        <div>Size: <strong>@item.Size</strong></div>
+                                    </td>
+                                    <td>@item.Quantity</td>
+                                    <td class="text-end">@($"{item.Price:N0}₫")</td>
+                                    <td class="text-end">@($"{item.Price * item.Quantity:N0}₫")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-center">Không có sản phẩm nào trong giỏ hàng.</p>
+            }
+        </div>
+    </div>
+
+    <!-- THÔNG TIN ĐẶT HÀNG -->
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white"><strong>Thông tin đặt hàng</strong></div>
+        <div class="card-body">
+            <form asp-action="Checkout" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="useDefaultInfo" name="useDefaultInfo" />
+                    <label class="form-check-label" for="useDefaultInfo">Dùng thông tin mặc định của tài khoản</label>
+                </div>
+
+                <!-- INPUT THÔNG TIN -->
+                <div id="customInfoFields">
+                    <div class="form-group mb-3">
+                        <label asp-for="CustomerName" class="form-label">Họ và tên</label>
+                        <input asp-for="CustomerName" class="form-control" id="CustomerName" name="CustomerName" placeholder="Nhập họ và tên" />
+                        <span asp-validation-for="CustomerName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="PhoneNumber" class="form-label">Số điện thoại</label>
+                        <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber" name="PhoneNumber" placeholder="Nhập số điện thoại" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="ShippingAddress" class="form-label">Địa chỉ giao hàng</label>
+                        <input asp-for="ShippingAddress" class="form-control" id="ShippingAddress" name="ShippingAddress" placeholder="Nhập địa chỉ giao hàng" />
+                        <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- MÃ GIẢM GIÁ -->
+                <div class="form-group mb-3">
+                    <label for="couponCode" class="form-label">Mã giảm giá</label>
+                    <div class="input-group">
+                        <input type="text" id="couponCode" name="CouponCode" class="form-control" placeholder="Nhập mã khuyến mãi" />
+                        <button type="button" class="btn btn-outline-primary" id="checkCoupon">Áp dụng</button>
+                        <button type="button" class="btn btn-outline-danger" id="clearCoupon" style="display:none;">❌</button>
+                    </div>
+                    <span id="couponFeedback" class="small"></span>
+                </div>
+
+                <!-- GHI CHÚ -->
+                <div class="form-group mb-3">
+                    <label asp-for="Notes" class="form-label">Ghi chú (tuỳ chọn)</label>
+                    <textarea asp-for="Notes" class="form-control"></textarea>
+                </div>
+
+                <!-- TỔNG TIỀN -->
+                <div class="mb-4">
+                    <table class="table">
+                        <tr>
+                            <th class="text-end">Tạm tính:</th>
+                            <td class="text-end">@subtotal.ToString("N0")₫</td>
+                        </tr>
+                        <tr>
+                            <th class="text-end text-success">Đã giảm:</th>
+                            <td id="discountAmount" class="text-success text-end">0₫</td>
+                        </tr>
+                        <tr>
+                            <th class="text-end text-danger">Tổng cộng:</th>
+                            <td id="finalTotal" class="fw-bold text-danger text-end">@subtotal.ToString("N0")₫</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="form-check mb-3 d-flex justify-content-center">
+                    <input type="checkbox" class="form-check-input me-2" id="codCheck" name="codCheck" required />
+                    <label class="form-check-label text-danger fw-semibold" for="codCheck">Thanh toán khi nhận hàng</label>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">← Quay lại giỏ hàng</a>
+                    <button type="submit" class="btn btn-success fw-semibold">✓ Đặt hàng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const user = @Html.Raw(JsonSerializer.Serialize(user ?? new CuaHangBanSach.Models.ApplicationUser()));
+            const subtotal = @Html.Raw(JsonSerializer.Serialize(subtotal));
+            let couponApplied = false;
+
+            // ✅ Dùng thông tin mặc định
+            const useDefault = document.getElementById('useDefaultInfo');
+            useDefault.addEventListener('change', function () {
+                const fields = ['CustomerName', 'PhoneNumber', 'ShippingAddress'];
+                const values = [user.FullName || '', user.PhoneNumber || '', user.Address || ''];
+                fields.forEach((id, i) => {
+                    const field = document.getElementById(id);
+                    if (!field) return;
+                    if (this.checked) {
+                        field.value = values[i];
+                        field.readOnly = true;
+                        field.classList.add("bg-light");
+                    } else {
+                        field.readOnly = false;
+                        field.classList.remove("bg-light");
+                    }
+                });
+            });
+
+            // ✅ Áp mã giảm giá
+            document.getElementById("checkCoupon").addEventListener("click", function () {
+                const codeInput = document.getElementById("couponCode");
+                const feedback = document.getElementById("couponFeedback");
+                const clearBtn = document.getElementById("clearCoupon");
+                if (!codeInput.value.trim()) return;
+
+                if (couponApplied) {
+                    feedback.innerText = 'Chỉ áp dụng 1 mã giảm giá mỗi đơn.';
+                    feedback.classList.add("text-danger");
+                    return;
+                }
+
+                fetch(`${window.location.origin}/api/CouponApi/Validate?code=${encodeURIComponent(codeInput.value)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            couponApplied = true;
+                            clearBtn.style.display = 'inline-block';
+                            const discount = data.isPercentage ? subtotal * data.discount / 100 : data.discount;
+                            const final = subtotal - discount;
+
+                            document.getElementById("discountAmount").innerText = discount.toLocaleString() + '₫';
+                            document.getElementById("finalTotal").innerText = final.toLocaleString() + '₫';
+                            feedback.innerText = `Áp dụng thành công: Giảm ${data.isPercentage ? data.discount + '%' : data.discount.toLocaleString() + '₫'}`;
+                            feedback.classList.remove("text-danger");
+                            feedback.classList.add("text-success");
+                        } else {
+                            feedback.innerText = 'Mã không hợp lệ hoặc đã hết hạn.';
+                            feedback.classList.remove("text-success");
+                            feedback.classList.add("text-danger");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Coupon fetch error:", err);
+                        feedback.innerText = 'Không thể kết nối máy chủ.';
+                        feedback.classList.add("text-danger");
+                    });
+            });
+
+            // ✅ Xóa mã giảm giá
+            document.getElementById("clearCoupon").addEventListener("click", function () {
+                document.getElementById("couponCode").value = '';
+                document.getElementById("couponFeedback").innerText = '';
+                document.getElementById("discountAmount").innerText = '0₫';
+                document.getElementById("finalTotal").innerText = subtotal.toLocaleString() + '₫';
+                this.style.display = 'none';
+                couponApplied = false;
+            });
+
+            // ✅ Kiểm tra tick COD
+            document.querySelector('form').addEventListener('submit', function (e) {
+                if (!document.getElementById('codCheck').checked) {
+                    alert('Bạn phải đồng ý thanh toán khi nhận hàng');
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}
