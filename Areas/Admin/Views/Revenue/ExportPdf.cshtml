@@ -1,0 +1,151 @@
+@model CuaHangBanSach.ViewModels.RevenueFilterViewModel
+@{
+    Layout = null; // Xuất PDF không cần layout
+    var chartImg = Model.ChartImageBase64;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Báo cáo doanh thu</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .summary-boxes {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .box {
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            width: 30%;
+            text-align: center;
+        }
+
+            .box h4 {
+                margin: 0;
+                font-size: 14px;
+                color: #666;
+            }
+
+            .box p {
+                margin: 5px 0 0;
+                font-size: 18px;
+                font-weight: bold;
+            }
+
+        .chart-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h2>
+        📊 Báo cáo doanh thu
+        @{
+            if (Model.FilterType == "day")
+            {
+                <text>từ @Model.FromDate?.ToString("dd/MM/yyyy") đến @Model.ToDate?.ToString("dd/MM/yyyy")</text>
+                ;
+            }
+            else if (Model.FilterType == "month")
+            {
+                <text>từ @Model.FromMonth/@Model.FromMonthYear đến @Model.ToMonth/@Model.ToMonthYear</text>
+                ;
+            }
+            else
+            {
+                <text>từ năm @Model.FromYear đến @Model.ToYear</text>
+                ;
+            }
+        }
+    </h2>
+
+    <div class="summary-boxes">
+        <div class="box">
+            <h4>Tổng đơn hoàn thành</h4>
+            <p>@Model.TotalOrders</p>
+        </div>
+        <div class="box">
+            <h4>Tổng sản phẩm bán</h4>
+            <p>@Model.TotalProducts</p>
+        </div>
+        <div class="box">
+            <h4>Tổng doanh thu</h4>
+            <p>@($"{Model.TotalRevenue:N0} VND")</p>
+        </div>
+    </div>
+    <div class="summary-boxes">
+        <div class="box">
+            <h4>Chi phí nhập hàng</h4>
+            <p>@($"{Model.TotalImportCost:N0} VND")</p>
+        </div>
+        <div class="box">
+            <h4>Lợi nhuận ròng</h4>
+            <p>@($"{Model.NetProfit:N0} VND")</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Thời gian</th>
+                <th>Doanh thu (VND)</th>
+                <th>Chi phí nhập (VND)</th>
+                <th>Lợi nhuận (VND)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Labels.Count; i++)
+            {
+                var label = Model.Labels[i];
+                var revenue = Model.Revenues[i];
+                var cost = Model.ImportCosts[i];
+                var profit = revenue - cost;
+                <tr>
+                    <td>@label</td>
+                    <td>@($"{revenue:N0} VND")</td>
+                    <td>@($"{cost:N0} VND")</td>
+                    <td>@($"{profit:N0} VND")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!string.IsNullOrEmpty(chartImg))
+    {
+        <div class="chart-container">
+            <img src="@chartImg" alt="Biểu đồ doanh thu" style="max-width: 100%; height: auto;" />
+        </div>
+    }
+</body>
+</html>

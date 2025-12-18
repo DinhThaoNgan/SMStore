@@ -1,0 +1,204 @@
+@model CuaHangBanSach.ViewModels.RevenueFilterViewModel
+@{
+    ViewData["Title"] = "Thống kê doanh thu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <h2 class="text-center text-primary mb-4">📊 Thống kê doanh thu</h2>
+
+    <form method="post" asp-action="Filter" id="filterForm" class="mb-4">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Chế độ thống kê:</label>
+                <select name="FilterType" class="form-select" id="filterType">
+                    <option value="day" selected="@(Model.FilterType == "day")">Theo ngày</option>
+                    <option value="month" selected="@(Model.FilterType == "month")">Theo tháng</option>
+                    <option value="year" selected="@(Model.FilterType == "year")">Theo năm</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 filter-group filter-day">
+                <label class="form-label fw-semibold">Từ ngày:</label>
+                <input type="date" name="FromDate" class="form-control" value="@(Model.FromDate?.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+            <div class="col-md-4 filter-group filter-day">
+                <label class="form-label fw-semibold">Đến ngày:</label>
+                <input type="date" name="ToDate" class="form-control" value="@(Model.ToDate?.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+
+            <div class="col-md-2 filter-group filter-month d-none">
+                <label class="form-label fw-semibold">Từ tháng:</label>
+                <input type="number" name="FromMonth" class="form-control" min="1" max="12" value="@(Model.FromMonth?.ToString() ?? "")" />
+            </div>
+            <div class="col-md-2 filter-group filter-month d-none">
+                <label class="form-label fw-semibold">Năm:</label>
+                <input type="number" name="FromMonthYear" class="form-control" value="@(Model.FromMonthYear?.ToString() ?? "")" />
+            </div>
+            <div class="col-md-2 filter-group filter-month d-none">
+                <label class="form-label fw-semibold">Đến tháng:</label>
+                <input type="number" name="ToMonth" class="form-control" min="1" max="12" value="@(Model.ToMonth?.ToString() ?? "")" />
+            </div>
+            <div class="col-md-2 filter-group filter-month d-none">
+                <label class="form-label fw-semibold">Năm:</label>
+                <input type="number" name="ToMonthYear" class="form-control" value="@(Model.ToMonthYear?.ToString() ?? "")" />
+            </div>
+
+            <div class="col-md-3 filter-group filter-year d-none">
+                <label class="form-label fw-semibold">Từ năm:</label>
+                <input type="number" name="FromYear" class="form-control" value="@(Model.FromYear?.ToString() ?? "")" />
+            </div>
+            <div class="col-md-3 filter-group filter-year d-none">
+                <label class="form-label fw-semibold">Đến năm:</label>
+                <input type="number" name="ToYear" class="form-control" value="@(Model.ToYear?.ToString() ?? "")" />
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-5 me-2">Thống kê</button>
+            <button type="button" class="btn btn-secondary px-4" id="btnResetFilter">Bỏ lọc</button>
+        </div>
+    </form>
+
+    <form id="exportForm" method="post" asp-action="ExportPdf">
+        <input type="hidden" name="FilterType" value="@Model.FilterType" />
+        <input type="hidden" name="FromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="ToDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="FromMonth" value="@Model.FromMonth" />
+        <input type="hidden" name="FromMonthYear" value="@Model.FromMonthYear" />
+        <input type="hidden" name="ToMonth" value="@Model.ToMonth" />
+        <input type="hidden" name="ToMonthYear" value="@Model.ToMonthYear" />
+        <input type="hidden" name="FromYear" value="@Model.FromYear" />
+        <input type="hidden" name="ToYear" value="@Model.ToYear" />
+        <input type="hidden" name="ChartImageBase64" id="ChartImageBase64" />
+        <div class="text-center mt-2">
+            <button type="button" id="btnExportPdf" class="btn btn-danger px-4">🖨️ In thống kê</button>
+        </div>
+    </form>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-warning">@Html.ValidationSummary(true)</div>
+    }
+
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <div class="bg-light p-3 rounded shadow-sm">
+                <h5 class="text-muted">Tổng đơn hoàn thành</h5>
+                <p class="fs-3 fw-bold text-success">@Model.TotalOrders</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light p-3 rounded shadow-sm">
+                <h5 class="text-muted">Tổng sản phẩm đã bán</h5>
+                <p class="fs-3 fw-bold text-success">@Model.TotalProducts</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light p-3 rounded shadow-sm">
+                <h5 class="text-muted">Tổng doanh thu</h5>
+                <p class="fs-3 fw-bold text-danger">@Model.TotalRevenue.ToString("N0") VND</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row text-center mb-4">
+        <div class="col-md-6">
+            <div class="bg-light p-3 rounded shadow-sm">
+                <h5 class="text-muted">Chi phí nhập hàng</h5>
+                <p class="fs-3 fw-bold text-primary">@Model.TotalImportCost.ToString("N0") VND</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="bg-light p-3 rounded shadow-sm">
+                <h5 class="text-muted">Lợi nhuận ròng</h5>
+                <p class="fs-3 fw-bold text-dark">@Model.NetProfit.ToString("N0") VND</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title text-center">Biểu đồ doanh thu và chi phí</h5>
+            <canvas id="chartRevenue" height="100"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart;
+        const ctx = document.getElementById("chartRevenue").getContext("2d");
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.Labels)),
+                datasets: [
+                    {
+                        label: 'Doanh thu (VND)',
+                        data: @Html.Raw(Json.Serialize(Model.Revenues)),
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Chi phí nhập hàng (VND)',
+                        data: @Html.Raw(Json.Serialize(Model.ImportCosts)),
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value.toLocaleString("vi-VN") + " VND";
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y;
+                                return label + ": " + value.toLocaleString("vi-VN") + " VND";
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateFilterFields() {
+            const type = document.getElementById("filterType").value;
+            document.querySelectorAll(".filter-group").forEach(el => {
+                if (!el.classList.contains("filter-" + type)) {
+                    el.classList.add("d-none");
+                } else {
+                    el.classList.remove("d-none");
+                }
+            });
+        }
+
+        document.getElementById("filterType").addEventListener("change", updateFilterFields);
+        document.addEventListener("DOMContentLoaded", updateFilterFields);
+
+        document.getElementById("btnExportPdf")?.addEventListener("click", function () {
+            const imgData = chart.toBase64Image();
+            document.getElementById("ChartImageBase64").value = imgData;
+            document.getElementById("exportForm").submit();
+        });
+
+        document.getElementById("btnResetFilter")?.addEventListener("click", function () {
+            window.location.href = '@Url.Action("Index", "Revenue", new { area = "Admin" })';
+        });
+    </script>
+}
