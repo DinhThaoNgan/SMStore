@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebsiteBanHang.Models;
-using WebsiteBanHang.Repository;
+using Microsoft.EntityFrameworkCore;
+using CuaHangBanSach.Models;
+using CuaHangBanSach.Repository;
+using CuaHangBanSach.ViewModels;
 
-namespace WebsiteBanHang.Areas.Admin.Controllers
+namespace CuaHangBanSach.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = SD.Role_Admin)]
