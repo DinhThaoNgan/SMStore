@@ -1,0 +1,27 @@
+@model int
+
+@{
+    ViewData["Title"] = "Hoàn tất đơn hàng";
+}
+
+<div class="container py-5 text-center">
+    <div class="alert alert-success shadow">
+        <h3 class="alert-heading mb-3">
+            <i class="bi bi-check-circle-fill text-success"></i> Đặt hàng thành công!
+        </h3>
+        <p class="fs-5">
+            Cảm ơn bạn đã mua hàng tại <strong>Trang Bán Hàng</strong>.
+        </p>
+        <p class="fs-6">
+            Đơn hàng của bạn đã được ghi nhận với mã đơn hàng:
+            <span class="fw-bold text-primary">#@Model</span>.
+        </p>
+        <p class="mt-4 text-muted">
+            Chúng tôi đang xử lý đơn hàng của bạn và sẽ giao trong thời gian sớm nhất. Vui lòng giữ điện thoại để nhận hàng.
+        </p>
+        <hr />
+        <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary mt-3">
+            <i class="bi bi-house-door-fill"></i> Tiếp tục mua sắm
+        </a>
+    </div>
+</div>

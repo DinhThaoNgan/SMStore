@@ -1,0 +1,146 @@
+@page "{id:int}"
+@model OrdersDetailModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = $"Chi tiết đơn hàng #{Model.Order.Id}";
+
+    var customer = Model.Order.ApplicationUser;
+    var totalOriginal = Model.Order.OrderDetails.Sum(x => x.Price * x.Quantity);
+    var discount = Model.Order.DiscountAmount;
+    var finalTotal = totalOriginal - discount;
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 fw-bold text-primary">
+        <i class="bi bi-receipt-cutoff me-2"></i> Chi tiết đơn hàng #@Model.Order.Id
+    </h2>
+
+    <!-- Thông tin khách hàng -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <p>
+                <i class="bi bi-person-circle me-1"></i> <strong>Khách hàng:</strong>
+                @(
+                                string.IsNullOrWhiteSpace(Model.Order.CustomerName)
+                                ? (string.IsNullOrWhiteSpace(customer?.FullName)
+                                ? customer?.UserName ?? "Không rõ"
+                                : customer.FullName)
+                                : Model.Order.CustomerName
+                                )
+            </p>
+
+            <p>
+                <i class="bi bi-telephone me-1"></i> <strong>SĐT:</strong>
+                @(string.IsNullOrWhiteSpace(Model.Order.PhoneNumber)
+                                ? (customer?.PhoneNumber ?? "Không rõ")
+                                : Model.Order.PhoneNumber)
+            </p>
+
+            <p>
+                <i class="bi bi-clock me-1"></i> <strong>Ngày đặt:</strong>
+                @Model.Order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            </p>
+        </div>
+
+        <div class="col-md-6">
+            <p>
+                <i class="bi bi-geo-alt me-1"></i> <strong>Địa chỉ giao hàng:</strong>
+                @Model.Order.ShippingAddress
+            </p>
+
+            <p>
+                <i class="bi bi-stickies me-1"></i> <strong>Ghi chú:</strong>
+                @(string.IsNullOrWhiteSpace(Model.Order.Notes) ? "Không" : Model.Order.Notes)
+            </p>
+
+            <p>
+                <i class="bi bi-ticket-perforated me-1"></i> <strong>Mã khuyến mãi:</strong>
+                @(string.IsNullOrWhiteSpace(Model.Order.CouponCode) ? "Không" : Model.Order.CouponCode)
+            </p>
+
+            <p>
+                <i class="bi bi-cash-stack me-1"></i> <strong>Tiền được giảm:</strong>
+                @($"{discount:N0} VND")
+            </p>
+        </div>
+    </div>
+
+    <!-- Trạng thái đơn hàng -->
+    <div class="mb-4">
+        <h5><i class="bi bi-info-circle me-1"></i> Trạng thái đơn hàng</h5>
+        <div class="text-muted">
+            <i class="bi bi-lock-fill"></i> Trạng thái hiện tại: <strong>@Model.Order.Status</strong>
+        </div>
+    </div>
+
+    <hr />
+
+    <h5 class="mb-3"><i class="bi bi-box-seam me-1"></i> Danh sách sản phẩm</h5>
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table align-middle table-bordered">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Hình ảnh</th>
+                    <th>Phiên bản</th>
+                    <th>Phân loại</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                @foreach (var item in Model.Order.OrderDetails)
+                {
+                    var imgUrl = string.IsNullOrEmpty(item.ImageUrl)
+                    ? Url.Content("~/images/no-image.png")
+                    : item.ImageUrl;
+
+                    <tr>
+                        <td class="text-start">@item.Product?.Name</td>
+                        <td>
+                            <img src="@imgUrl" alt="Ảnh" class="img-thumbnail mx-auto d-block" style="max-width: 80px;" />
+                        </td>
+                        <td>@item.Color</td>
+                        <td>@item.Size</td>
+                        <td>@item.Quantity</td>
+                        <td>@($"{item.Price:N0} VND")</td>
+                        <td>@($"{item.Price * item.Quantity:N0} VND")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end fs-5 fw-bold mt-4">
+        <p><i class="bi bi-cash-coin me-1"></i> Tạm tính: @($"{totalOriginal:N0} VND")</p>
+        <p><i class="bi bi-ticket-perforated me-1"></i> Giảm giá: -@($"{discount:N0} VND")</p>
+        <p class="text-primary">
+            <i class="bi bi-calculator me-1"></i> Tổng cộng thanh toán: @($"{finalTotal:N0} VND")
+        </p>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+        <a asp-page="../Orders" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại
+        </a>
+
+        <div>
+            @if (Model.Order.Status == "Đã hoàn thành")
+            {
+                <a asp-area="" asp-controller="Orders" asp-action="Print" asp-route-id="@Model.Order.Id" class="btn btn-primary">
+                    🖨️ In hóa đơn
+                </a>
+            }
+
+            <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.Order.Id">
+                <button type="submit"
+                        class="btn btn-danger"
+                        onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?');"
+                        @(Model.Order.Status == "Đang giao hàng" || Model.Order.Status == "Đã hoàn thành" || Model.Order.Status == "Đã hủy" ? "disabled" : "")>
+                    ❌ Hủy đơn hàng
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
