@@ -33,6 +33,8 @@ builder.Services.AddScoped<IBrandRepository, EFBrandRepository>();
 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 // Đăng ký SupplierRepository
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IImportReceiptRepository, ImportReceiptRepository>();
 
 // Cookie configuration
 builder.Services.ConfigureApplicationCookie(options =>
@@ -63,9 +65,17 @@ app.UseAuthorization();
 // Session middleware
 app.UseSession();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+// Configure routing for Areas
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "areas",
+        pattern: "{area:exists}/{controller=Product}/{action=Index}/{id?}");
+
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+});
 app.MapRazorPages();
 
 app.Run();
