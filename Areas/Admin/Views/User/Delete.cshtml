@@ -1,0 +1,28 @@
+@model CuaHangBanSach.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Xác nhận xoá người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <h2 class="text-danger text-center mb-4">Bạn có chắc muốn xoá người dùng này?</h2>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title text-primary mb-3">@Model.FullName</h5>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Điện thoại:</strong> @Model.PhoneNumber</p>
+            <p><strong>Tuổi:</strong> @Model.Age</p>
+            <p><strong>Địa chỉ:</strong> @Model.Address</p>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-danger px-4 me-3">Xoá</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">Huỷ</a>
+        </div>
+    </form>
+</div>

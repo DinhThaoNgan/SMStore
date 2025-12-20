@@ -1,0 +1,78 @@
+@model CuaHangBanSach.ViewModels.UserListViewModel
+@{
+    ViewData["Title"] = "Danh sách người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Danh sách người dùng</h2>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="searchTerm" class="form-control" placeholder="Tìm theo email hoặc tên..." value="@Model.SearchTerm" />
+        <button type="submit" class="btn btn-primary">Tìm</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th class="text-center">#</th>
+                <th>Email</th>
+                <th>Họ tên</th>
+                <th>Điện thoại</th>
+                <th>Tuổi</th>
+                <th>Địa chỉ</th>
+                <th class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Items != null && Model.Items.Any())
+            {
+                var index = (Model.PageNumber - 1) * Model.PageSize + 1;
+                foreach (var user in Model.Items)
+                {
+                    var role = Model.UserRoles.ContainsKey(user.Id) ? Model.UserRoles[user.Id] : "";
+
+                    <tr>
+                        <td class="text-center">@index</td>
+                        <td>@user.Email</td>
+                        <td>@user.FullName</td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@user.Age</td>
+                        <td>@user.Address</td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-warning btn-sm me-1">Sửa</a>
+                            <a asp-action="Display" asp-route-id="@user.Id" class="btn btn-info btn-sm me-1">Chi tiết</a>
+                            @if (role != "Admin")
+                            {
+                                <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger btn-sm">Xoá</a>
+                            }
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted">Không tìm thấy người dùng nào.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@Model.SearchTerm">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
