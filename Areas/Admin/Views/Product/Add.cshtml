@@ -1,0 +1,135 @@
+@model CuaHangBanSach.ViewModels.ProductWithVariantsViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Thêm sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4 text-center text-success">Thêm sản phẩm mới</h2>
+
+    <form asp-action="Add" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Product.Name" class="form-label">Tên sản phẩm</label>
+            <input asp-for="Product.Name" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Product.Price" class="form-label">Giá</label>
+            <input asp-for="Product.Price" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Product.Description" class="form-label">Mô tả</label>
+            <textarea asp-for="Product.Description" class="form-control" rows="10" style="height: 200px;"></textarea>
+        </div>
+
+
+        <div class="mb-3">
+            <label asp-for="Product.CategoryId" class="form-label">Thể loại</label>
+            <select asp-for="Product.CategoryId" asp-items="ViewBag.Categories" class="form-select"></select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Product.BrandId" class="form-label">Nhà xuất bản</label>
+            <select asp-for="Product.BrandId" asp-items="ViewBag.Brands" class="form-select"></select>
+        </div>
+
+        <div class="mb-3">
+            <label for="imageUrl" class="form-label">Hình ảnh chính</label>
+            <input type="file" name="imageUrl" class="form-control" id="mainImageInput" />
+            <img id="mainPreview" src="~/images/no-image.png" class="img-thumbnail mt-2" style="max-width: 200px;" />
+        </div>
+
+        <h5 class="text-primary mt-4">Biến thể sản phẩm</h5>
+        <div id="variant-container">
+            <div class="variant-group border rounded p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input name="Variants[0].Color" class="form-control" placeholder="Phiên bản" />
+                    </div>
+                    <div class="col-md-3">
+                        <input name="Variants[0].Size" class="form-control" placeholder="Phân loại" />
+                    </div>
+                    <div class="col-md-3">
+                        <input name="Variants[0].StockQuantity" class="form-control" placeholder="Tồn kho" type="number" />
+                    </div>
+                    <div class="col-md-3">
+                        <input name="Variants[0].VariantImage" type="file" class="form-control variant-image-input" data-index="0" />
+                        <img id="variantPreview_0" src="~/images/no-image.png" class="img-thumbnail mt-2" style="max-width: 100px;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-outline-secondary mb-3" onclick="addVariant()">+ Thêm biến thể</button>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success px-4">Thêm</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">Huỷ</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Xem trước ảnh chính
+        document.getElementById('mainImageInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('mainPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        let index = 1;
+        function addVariant() {
+            const container = document.getElementById('variant-container');
+            const html = `
+                <div class="variant-group border rounded p-3 mb-3">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input name="Variants[${index}].Color" class="form-control" placeholder="Phiên bản" />
+                        </div>
+                        <div class="col-md-3">
+                            <input name="Variants[${index}].Size" class="form-control" placeholder="Phân loại" />
+                        </div>
+                        <div class="col-md-3">
+                            <input name="Variants[${index}].StockQuantity" type="number" class="form-control" placeholder="Tồn kho" />
+                        </div>
+                        <div class="col-md-3">
+                            <input name="Variants[${index}].VariantImage" type="file" class="form-control variant-image-input" data-index="${index}" />
+                            <img id="variantPreview_${index}" src="~/images/no-image.png" class="img-thumbnail mt-2" style="max-width: 100px;" />
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            index++;
+        }
+
+        // Preview ảnh biến thể
+        document.addEventListener("change", function (e) {
+            if (e.target.classList.contains("variant-image-input")) {
+                const input = e.target;
+                const index = input.getAttribute("data-index");
+                const preview = document.getElementById("variantPreview_" + index);
+                const file = input.files[0];
+                if (file && preview) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    </script>
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
