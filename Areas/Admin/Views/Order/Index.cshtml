@@ -1,0 +1,135 @@
+@model CuaHangBanSach.ViewModels.OrderListViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Danh sách đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="px-3 py-5">
+    <h2 class="text-center mb-4 fw-bold">
+        <i class="bi bi-bag-check"></i> Quản lý Đơn hàng
+    </h2>
+
+    <form method="get" class="mb-4 d-flex justify-content-center">
+        <input type="text" name="search" value="@Model.SearchTerm" class="form-control w-25 me-2" placeholder="Tìm theo tên hoặc username" />
+        <button type="submit" class="btn btn-dark">Tìm kiếm</button>
+    </form>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
+    @if (!Model.Items.Any())
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i> Chưa có đơn hàng nào.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow rounded-3 overflow-hidden">
+            <table class="table table-hover align-middle mb-0 bg-white">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    @foreach (var order in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-semibold text-secondary">#@order.Id</td>
+                            <td>
+                                @(
+                                                        string.IsNullOrWhiteSpace(order.CustomerName)
+                                                        ? (string.IsNullOrWhiteSpace(order.ApplicationUser?.FullName)
+                                                        ? order.ApplicationUser?.UserName ?? "Không rõ"
+                                                        : order.ApplicationUser.FullName)
+                                                        : order.CustomerName
+                                                        )
+                        </td>
+                        <td>@order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@($"{order.TotalPrice:N0} VND")</td>
+                        <td>
+                        @{
+                                    var options = new List<SelectListItem>
+                                                {
+                                                new SelectListItem { Text = "Đang xử lý", Value = "Đang xử lý" },
+                                                new SelectListItem { Text = "Đã xử lý", Value = "Đã xử lý" },
+                                                new SelectListItem { Text = "Đang giao hàng", Value = "Đang giao hàng" },
+                                                new SelectListItem { Text = "Đã hoàn thành", Value = "Đã hoàn thành" },
+                                                new SelectListItem { Text = "Đã hủy", Value = "Đã hủy" }
+                                                };
+
+                                    if (order.Status == "Đang giao hàng")
+                                    {
+                                        options.RemoveAll(o => o.Value == "Đã hủy");
+                                    }
+                                    else if (order.Status == "Đã hoàn thành" || order.Status == "Đã hủy")
+                                    {
+                                        options.Clear();
+                                    }
+                                }
+
+                                @if (options.Any())
+                                {
+                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="orderId" value="@order.Id" />
+                                        @Html.DropDownList("status", new SelectList(options, "Value", "Text", order.Status),
+                                        new { @class = "form-select form-select-sm w-auto d-inline", onchange = "this.form.submit()" })
+                        </form>
+                                                }
+                                else
+                                {
+                                    <span class="text-muted">@order.Status</span>
+                                }
+                            </td>
+                            <td>
+                                @if (order.Status == "Đã hoàn thành")
+                                {
+                                    <a asp-action="Print" asp-route-id="@order.Id" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                        🖨️ In
+                                    </a>
+                                }
+
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-outline-dark me-2">
+                                    <i class="bi bi-eye-fill"></i> Xem
+                                </a>
+
+                                @if (order.Status == "Đã hủy")
+                                {
+                                    <a asp-action="Delete" asp-route-id="@order.Id" class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Bạn có chắc muốn xoá đơn hàng này?');">
+                                        <i class="bi bi-trash3-fill"></i> Xoá
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="mt-4 d-flex justify-content-center">
+            <ul class="pagination">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="?page=@i&search=@Model.SearchTerm">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
