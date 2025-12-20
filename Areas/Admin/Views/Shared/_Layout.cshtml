@@ -1,0 +1,119 @@
+@* Views/Shared/_Layout.cshtml *@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Admin</title>
+
+    <!-- Bootstrap & Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/admin/css/styles.css" asp-append-version="true" />
+
+    @RenderSection("Styles", required: false)
+</head>
+<body style="font-family: 'Poppins', sans-serif;">
+    <div class="wrapper d-flex min-vh-100">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-dark text-white p-3">
+            <div class="d-flex align-items-center mb-4">
+                <button class="toggle-btn btn text-white me-2" type="button">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <div class="sidebar-logo fw-bold fs-4">
+                    <a href="/" class="text-white text-decoration-none">ADMIN</a>
+                </div>
+            </div>
+
+            <ul class="nav flex-column sidebar-nav">
+                <li class="nav-item mb-2">
+                    <a href="/admin/Product" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-box-seam me-2"></i><span>Quản lý sản phẩm</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/Category" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-tags me-2"></i><span>Quản lý thể loại</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/Brand" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-tags me-2"></i><span>Quản lý nhà xuất bản</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/Supplier" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-tags me-2"></i><span>Quản lý nhà cung cấp</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/Coupon" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-tags me-2"></i><span>Quản lý khuyến mãi</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/User" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-person-badge me-2"></i><span>Quản lý người dùng</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/Order" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-receipt me-2"></i><span>Quản lý hóa đơn</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/ImportReceipt" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-receipt me-2"></i><span>Quản lý hóa đơn nhập</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/Slider" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-bar-chart-line me-2"></i><span>Quản lý tin tức</span>
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/admin/revenue" class="sidebar-link text-white d-flex align-items-center">
+                        <i class="bi bi-bar-chart-line me-2"></i><span>Thống kê doanh thu</span>
+                    </a>
+                </li>
+
+            </ul>
+
+            <div class="sidebar-footer mt-auto pt-3 border-top">
+                <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout"
+                      asp-route-returnUrl="@Url.Action("Index", "Product", new { area = "" })">
+                    <button id="logout" type="submit" class="btn btn-link text-white text-start w-100">
+                        <i class="bi bi-box-arrow-left me-2"></i><span>Đăng xuất</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main p-4 bg-light flex-fill">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleBtn = document.querySelector(".toggle-btn");
+            const sidebar = document.querySelector("#sidebar");
+
+            toggleBtn?.addEventListener("click", function () {
+                sidebar?.classList.toggle("expand");
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
