@@ -22,6 +22,7 @@ namespace CuaHangBanSach.Models
         // Thêm DbSet cho ImportReceipt và ImportReceiptDetail
         public DbSet<ImportReceipt> ImportReceipts { get; set; }
         public DbSet<ImportReceiptDetail> ImportReceiptDetails { get; set; }
+        public DbSet<Slider> Sliders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

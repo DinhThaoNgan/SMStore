@@ -1,0 +1,32 @@
+@model CuaHangBanSach.Models.Slider
+
+@{
+    ViewData["Title"] = "Xác nhận xoá tin tức";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <h2 class="text-danger text-center mb-4">Bạn có chắc muốn xoá tin tức này?</h2>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="~/sliders/@Model.Image" class="img-fluid rounded-start" alt="@Model.Name" />
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@Model.Name</h5>
+                    <p class="card-text text-muted mb-2">@Model.Description</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-danger px-4 me-3">🗑️ Xoá</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">← Huỷ</a>
+        </div>
+    </form>
+</div>

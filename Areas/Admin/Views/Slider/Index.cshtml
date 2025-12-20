@@ -1,0 +1,75 @@
+@model CuaHangBanSach.ViewModels.SliderListViewModel
+
+@{
+    ViewData["Title"] = "Danh sách tin tức";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Danh sách tin tức</h2>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tin tức..." value="@Model.SearchTerm" />
+        <button type="submit" class="btn btn-primary">Tìm</button>
+    </div>
+</form>
+
+<div class="d-flex justify-content-end mb-3">
+    <a asp-action="Create" class="btn btn-success px-4">➕ Thêm mới</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
+        <tr>
+            <th class="text-center">#</th>
+            <th>Tên</th>
+            <th>Mô tả</th>
+            <th>Ảnh</th>
+            <th class="text-center">Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Items.Any())
+        {
+            var index = (Model.PageNumber - 1) * Model.PageSize + 1;
+            foreach (var slider in Model.Items)
+            {
+                <tr>
+                    <td class="text-center">@index</td>
+                    <td>@slider.Name</td>
+                    <td>@slider.Description</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(slider.Image))
+                        {
+                            <img src="/sliders/@slider.Image" alt="Slider Image" class="img-thumbnail" style="max-height: 80px;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Không có ảnh</span>
+                        }
+                    </td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@slider.Id" class="btn btn-warning btn-sm me-1">Sửa</a>
+                        <a asp-action="Delete" asp-route-id="@slider.Id" class="btn btn-danger btn-sm">Xoá</a>
+                    </td>
+                </tr>
+                index++;
+            }
+        }
+        else
+        {
+            <tr><td colspan="5" class="text-center text-muted">Không có slider nào.</td></tr>
+        }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link" href="?page=@i&search=@Model.SearchTerm">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
