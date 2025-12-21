@@ -1,0 +1,75 @@
+@{
+    int index = 0;
+    var sliders = ViewBag.Sliders as List<CuaHangBanSach.Models.Slider> ?? new List<CuaHangBanSach.Models.Slider>();
+}
+
+<style>
+    #slider {
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+
+    .carousel-inner {
+        width: 100%;
+        height: 400px; /* Chiều cao cố định */
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .carousel-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ảnh luôn lấp đầy khung, cắt nếu cần */
+        border-radius: 10px;
+        display: block;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 50%;
+        padding: 10px;
+    }
+
+    .carousel-indicators [data-bs-target] {
+        background-color: #000;
+    }
+</style>
+
+<section id="slider" class="container">
+    <div id="sliderCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="30000">
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            @for (int i = 0; i < sliders.Count; i++)
+            {
+                <button type="button"
+                        data-bs-target="#sliderCarousel"
+                        data-bs-slide-to="@i"
+                        class="@(i == 0 ? "active" : "")"
+                        aria-current="@(i == 0 ? "true" : "false")"
+                        aria-label="Slide @(i + 1)"></button>
+            }
+        </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner">
+            @foreach (var slider in sliders)
+            {
+                <div class="carousel-item @(index == 0 ? "active" : "")">
+                    <img src="~/sliders/@slider.Image" alt="Slider @(index + 1)" />
+                </div>
+                index++;
+            }
+        </div>
+
+        <!-- Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#sliderCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#sliderCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</section>
