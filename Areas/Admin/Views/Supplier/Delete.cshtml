@@ -1,0 +1,26 @@
+@model CuaHangBanSach.Models.Supplier
+@{
+    ViewData["Title"] = "Xóa nhà cung cấp";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-danger text-center mb-4">❌ Xóa nhà cung cấp</h2>
+
+<div class="alert alert-warning text-center fw-semibold">
+    Bạn có chắc chắn muốn xóa nhà cung cấp này không?
+</div>
+
+<div class="card mb-3 w-50 mx-auto shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Name</h5>
+        <p><strong>Email:</strong> @Model.Email</p>
+        <p><strong>SĐT:</strong> @Model.Phone</p>
+        <p><strong>Địa chỉ:</strong> @Model.Address</p>
+    </div>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post" class="text-center">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger px-4 me-3">Xoá</button>
+    <a asp-action="Index" class="btn btn-secondary px-4">Huỷ</a>
+</form>
