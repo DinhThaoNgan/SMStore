@@ -1,13 +1,81 @@
-@model List<CuaHangBanSach.Models.Category>
+@model (List<CuaHangBanSach.Models.Category>, List<CuaHangBanSach.Models.Brand>)
 
-<div class="list-group">
-    <a href="/Product" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["action"].ToString() == "Index" && ViewContext.RouteData.Values["controller"].ToString() == "Product" ? "active" : "")">
-        Tất cả sản phẩm
-    </a>
-    @foreach (var category in Model)
-    {
-        <a href="/Product?categoryId=@category.Id" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["categoryId"]?.ToString() == category.Id.ToString() ? "active" : "")">
-            @category.Name
-        </a>
+@{
+    var categories = Model.Item1;
+    var brands = Model.Item2;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+    .accordion-button {
+        font-weight: bold;
+        font-family: 'Roboto', sans-serif;
     }
+
+    .list-group-item {
+        transition: all 0.2s ease;
+        font-family: 'Roboto', sans-serif;
+    }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(3px);
+        }
+</style>
+
+<!-- Categories Accordion -->
+<div class="accordion mb-3" id="accordionCategories">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingCategories">
+            <button class="accordion-button bg-warning text-white" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCategories"
+                    aria-expanded="true" aria-controls="collapseCategories">
+                <i class="bi bi-list me-2"></i> THỂ LOẠI
+            </button>
+        </h2>
+        <div id="collapseCategories" class="accordion-collapse collapse show"
+             aria-labelledby="headingCategories">
+            <div class="accordion-body p-0">
+                <ul class="list-group list-group-flush">
+                    @foreach (var category in categories)
+                    {
+                        <li class="list-group-item">
+                            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@category.Id"
+                               class="text-decoration-none text-dark">
+                                @category.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Brands Accordion -->
+<div class="accordion" id="accordionBrands">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingBrands">
+            <button class="accordion-button bg-info text-white collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBrands"
+                    aria-expanded="false" aria-controls="collapseBrands">
+                <i class="bi bi-stars me-2"></i> NHÀ XUẤT BẢN
+            </button>
+        </h2>
+        <div id="collapseBrands" class="accordion-collapse collapse show"
+             aria-labelledby="headingBrands">
+            <div class="accordion-body p-0">
+                <ul class="list-group list-group-flush">
+                    @foreach (var brand in brands)
+                    {
+                        <li class="list-group-item">
+                            <a asp-controller="Product" asp-action="Index" asp-route-brandId="@brand.Id"
+                               class="text-decoration-none text-dark">@brand.Name</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
