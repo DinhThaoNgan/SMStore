@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CuaHangBanSach.Models;
+using CuaHangBanSach.ViewModels;
 
 namespace CuaHangBanSach.Repository
 {
@@ -42,6 +43,33 @@ namespace CuaHangBanSach.Repository
                 _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        // ✅ Hàm hỗ trợ phân trang + tìm kiếm
+        public async Task<CategoryListViewModel> GetPagedCategoriesAsync(string? search, int page, int pageSize)
+        {
+            var query = _context.Categories.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(c => c.Name.Contains(search));
+            }
+
+            var totalRecords = await query.CountAsync();
+            var items = await query
+                .OrderBy(c => c.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new CategoryListViewModel
+            {
+                Items = items,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                SearchTerm = search
+            };
         }
     }
 }

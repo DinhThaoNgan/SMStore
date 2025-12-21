@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CuaHangBanSach.Models;
+using CuaHangBanSach.ViewModels;
 
 namespace CuaHangBanSach.Repository
 {
@@ -17,7 +18,7 @@ namespace CuaHangBanSach.Repository
             return await _context.Brands.ToListAsync();
         }
 
-        public async Task<Brand> GetByIdAsync(int id)
+        public async Task<Brand?> GetByIdAsync(int id)
         {
             return await _context.Brands.FindAsync(id);
         }
@@ -42,6 +43,33 @@ namespace CuaHangBanSach.Repository
                 _context.Brands.Remove(brand);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        // ✅ Phân trang + tìm kiếm
+        public async Task<BrandListViewModel> GetPagedBrandsAsync(string? search, int page, int pageSize)
+        {
+            var query = _context.Brands.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(b => b.Name.Contains(search));
+            }
+
+            var totalRecords = await query.CountAsync();
+            var items = await query
+                .OrderBy(b => b.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new BrandListViewModel
+            {
+                Items = items,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                SearchTerm = search
+            };
         }
     }
 }
