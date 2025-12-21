@@ -1,4 +1,4 @@
-namespace CuaHangBanSach.Models
+namespace CuaHangBanSach.ViewModels
 {
     public class Paginate<T>
     {
