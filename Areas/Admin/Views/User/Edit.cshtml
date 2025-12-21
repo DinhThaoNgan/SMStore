@@ -1,0 +1,44 @@
+@model CuaHangBanSach.ViewModels.EditUserViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Chỉnh sửa người dùng</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input class="form-control" asp-for="Email" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label>Họ tên</label>
+        <input class="form-control" asp-for="FullName" />
+    </div>
+
+    <div class="mb-3">
+        <label>Tuổi</label>
+        <input class="form-control" asp-for="Age" />
+    </div>
+
+    <div class="mb-3">
+        <label>Địa chỉ</label>
+        <input class="form-control" asp-for="Address" />
+    </div>
+
+    <div class="mb-3">
+        <label>Số điện thoại</label>
+        <input class="form-control" asp-for="PhoneNumber" />
+    </div>
+
+    <div class="mb-3">
+        <label>Quyền</label>
+        <select class="form-select" asp-for="Role" asp-items="@(new SelectList(Model.AllRoles))"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

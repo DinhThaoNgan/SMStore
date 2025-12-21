@@ -1,0 +1,158 @@
+@model CuaHangBanSach.Models.Order
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var customer = Model.ApplicationUser;
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 fw-bold">
+        <i class="bi bi-receipt-cutoff me-2"></i> Chi tiết đơn hàng #@Model.Id
+    </h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <p>
+                <strong>Khách hàng:</strong>
+                @(string.IsNullOrWhiteSpace(Model.CustomerName)
+                                ? (string.IsNullOrWhiteSpace(customer?.FullName) ? customer?.UserName ?? "Không rõ" : customer.FullName)
+                                : Model.CustomerName)
+            </p>
+
+            <p>
+                <strong>SĐT:</strong>
+                @(string.IsNullOrWhiteSpace(Model.PhoneNumber)
+                                ? (string.IsNullOrWhiteSpace(customer?.PhoneNumber) ? "Không rõ" : customer.PhoneNumber)
+                                : Model.PhoneNumber)
+            </p>
+
+            <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+
+        <div class="col-md-6">
+            <p><strong>Địa chỉ giao hàng:</strong> @Model.ShippingAddress</p>
+            <p><strong>Ghi chú:</strong> @(string.IsNullOrWhiteSpace(Model.Notes) ? "Không" : Model.Notes)</p>
+            <p><strong>Mã khuyến mãi:</strong> @(string.IsNullOrWhiteSpace(Model.CouponCode) ? "Không" : Model.CouponCode)</p>
+            <p><strong>Tiền được giảm:</strong> @($"{Model.DiscountAmount:N0} VND")</p>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h5><i class="bi bi-info-circle me-1"></i> Trạng thái đơn hàng</h5>
+
+        @{
+            var options = new List<SelectListItem>
+                {
+                new SelectListItem { Text = "Đang xử lý", Value = "Đang xử lý" },
+                new SelectListItem { Text = "Đã xử lý", Value = "Đã xử lý" },
+                new SelectListItem { Text = "Đang giao hàng", Value = "Đang giao hàng" },
+                new SelectListItem { Text = "Đã hoàn thành", Value = "Đã hoàn thành" },
+                new SelectListItem { Text = "Đã hủy", Value = "Đã hủy" }
+                };
+
+            if (Model.Status == "Đang giao hàng")
+            {
+                options.RemoveAll(o => o.Value == "Đã hủy");
+            }
+            else if (Model.Status == "Đã hoàn thành" || Model.Status == "Đã hủy")
+            {
+                options.Clear();
+            }
+        }
+
+        @if (options.Any())
+        {
+            <form asp-action="UpdateStatus" method="post" class="d-flex gap-3 align-items-center">
+                <input type="hidden" name="orderId" value="@Model.Id" />
+                @Html.DropDownList("status", new SelectList(options, "Value", "Text", Model.Status),
+                new { @class = "form-select w-auto", onchange = "this.form.submit()" })
+            <span class="text-muted">(Tự động lưu khi chọn)</span>
+        </form>
+                }
+        else
+        {
+            <div class="text-muted">
+                <i class="bi bi-lock-fill"></i> Trạng thái hiện tại:
+                <strong>@Model.Status</strong> (không thể thay đổi)
+            </div>
+        }
+    </div>
+
+    <hr />
+    <h5 class="mb-3"><i class="bi bi-box-seam me-1"></i> Danh sách sản phẩm</h5>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table align-middle table-bordered">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Hình ảnh</th>
+                    <th>Phiên bản</th>
+                    <th>Phân loại</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                @foreach (var item in Model.OrderDetails)
+                {
+                    var imgUrl = string.IsNullOrEmpty(item.ImageUrl)
+                    ? Url.Content("~/images/no-image.png")
+                    : item.ImageUrl;
+
+                    <tr>
+                        <td class="text-start">@item.Product?.Name</td>
+                        <td>
+                            <img src="@imgUrl" alt="Ảnh"
+                                 class="img-thumbnail mx-auto d-block"
+                                 style="max-width: 80px;" />
+                        </td>
+                        <td>@item.Color</td>
+                        <td>@item.Size</td>
+                        <td>@item.Quantity</td>
+                        <td>@($"{item.Price:N0} VND")</td>
+                        <td>@($"{item.Price * item.Quantity:N0} VND")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end fs-5 fw-bold mt-4">
+        @{
+            var totalOriginal = Model.OrderDetails.Sum(x => x.Price * x.Quantity);
+            var discount = Model.DiscountAmount;
+            var finalTotal = totalOriginal - discount;
+        }
+
+        <p><i class="bi bi-cash-coin me-1"></i> Tạm tính: @($"{totalOriginal:N0} VND")</p>
+        <p><i class="bi bi-ticket-perforated me-1"></i> Giảm giá: -@($"{discount:N0} VND")</p>
+        <p class="text-primary"><i class="bi bi-calculator me-1"></i> Tổng cộng thanh toán: @($"{finalTotal:N0} VND")</p>
+    </div>
+
+    @if (Model.Status == "Đã hoàn thành")
+    {
+        <a asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-primary me-2">
+            🖨️ In hóa đơn
+        </a>
+    }
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Quay về danh sách
+        </a>
+    </div>
+</div>

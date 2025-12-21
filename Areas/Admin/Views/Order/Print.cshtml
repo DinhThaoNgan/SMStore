@@ -1,0 +1,145 @@
+@model CuaHangBanSach.Models.Order
+@{
+    Layout = null;
+    var customer = Model.ApplicationUser;
+    var totalOriginal = Model.OrderDetails.Sum(x => x.Price * x.Quantity);
+    var finalTotal = totalOriginal - Model.DiscountAmount;
+
+    var vnTime = TimeZoneInfo.ConvertTimeFromUtc(
+        DateTime.SpecifyKind(Model.OrderDate, DateTimeKind.Utc),
+        TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Hóa đơn bán hàng #@Model.Id</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 15px;
+            padding: 25px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #aaa;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .summary p {
+            margin: 4px 0;
+            font-size: 15px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h2>🧾 HÓA ĐƠN BÁN HÀNG</h2>
+
+    <p><strong>Mã đơn hàng:</strong> #@Model.Id</p>
+
+    <!-- ✅ Ưu tiên hiển thị thông tin người nhập lúc checkout -->
+    <p>
+        <strong>Khách hàng:</strong>
+        @(
+                string.IsNullOrWhiteSpace(Model.CustomerName)
+                ? (string.IsNullOrWhiteSpace(customer?.FullName)
+                ? customer?.UserName ?? "Không rõ"
+                : customer.FullName)
+                : Model.CustomerName
+                )
+    </p>
+    <p><strong>SĐT:</strong> @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? (customer?.PhoneNumber ?? "Không rõ") : Model.PhoneNumber)</p>
+    <p><strong>Địa chỉ giao hàng:</strong> @Model.ShippingAddress</p>
+    <p><strong>Ngày đặt:</strong> @vnTime.ToString("dd/MM/yyyy HH:mm")</p>
+    <p><strong>Ghi chú:</strong> @(string.IsNullOrWhiteSpace(Model.Notes) ? "Không" : Model.Notes)</p>
+    <p><strong>Mã khuyến mãi:</strong> @(Model.CouponCode ?? "Không")</p>
+    <p><strong>Tiền được giảm:</strong> @($"{Model.DiscountAmount:N0} VND")</p>
+
+    <div class="section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Sản phẩm</th>
+                    <th>Phiên bản</th>
+                    <th>Phân loại</th>
+                    <th>SL</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderDetails)
+                {
+                    <tr>
+                        <td>
+                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? item.Product?.ImageUrl : item.ImageUrl)" alt="Ảnh sản phẩm" />
+                        </td>
+                        <td>@item.Product?.Name</td>
+                        <td>@item.Color</td>
+                        <td>@item.Size</td>
+                        <td>@item.Quantity</td>
+                        <td>@($"{item.Price:N0} VND")</td>
+                        <td>@($"{item.Price * item.Quantity:N0} VND")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="summary text-right section">
+        <p><strong>Tạm tính:</strong> @($"{totalOriginal:N0} VND")</p>
+        <p><strong>Giảm giá:</strong> -@($"{Model.DiscountAmount:N0} VND")</p>
+        <p><strong>Tổng cộng:</strong> @($"{finalTotal:N0} VND")</p>
+    </div>
+
+    <div class="footer">
+        <p style="margin-top: 50px;">Cảm ơn quý khách đã mua hàng!</p>
+    </div>
+
+</body>
+</html>
