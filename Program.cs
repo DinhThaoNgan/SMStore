@@ -1,48 +1,57 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 using CuaHangBanSach.Models;
 using CuaHangBanSach.Repository;
+using CuaHangBanSach.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Database configuration
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity configuration
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+        .AddDefaultTokenProviders()
+        .AddDefaultUI()
+        .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Session configuration
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = $"/Identity/Account/Login";
+    options.LogoutPath = $"/Identity/Account/Logout";
+    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+});
+
+builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor();
+
+
+builder.Services.AddScoped<IProductRepository, EFProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
+builder.Services.AddScoped<IBrandRepository, EFBrandRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IImportReceiptRepository, ImportReceiptRepository>();
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+
+
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddControllersWithViews();
 
-// Register repositories
-builder.Services.AddScoped<IProductRepository, EFProductRepository>();
-builder.Services.AddScoped<ICategoryRepository, EFCategoryRepository>();
-builder.Services.AddScoped<IBrandRepository, EFBrandRepository>();
-builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-// Đăng ký SupplierRepository
-builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IImportReceiptRepository, ImportReceiptRepository>();
-
-// Cookie configuration
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-});
 
 var app = builder.Build();
 
@@ -53,19 +62,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+RotativaConfiguration.Setup(app.Environment.WebRootPath, "Rotativa");
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseRouting();
-
-// Authentication and Authorization middleware
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Session middleware
 app.UseSession();
+app.UseRouting();
+app.UseAuthentication(); ;
+app.UseAuthorization();
+app.MapRazorPages();
+app.UseRotativa();
 
-// Configure routing for Areas
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
@@ -74,8 +82,6 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
+        pattern: "{controller=Product}/{action=Index}/{id?}");
 });
-app.MapRazorPages();
-
 app.Run();
