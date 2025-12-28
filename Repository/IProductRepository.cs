@@ -1,5 +1,5 @@
 using CuaHangBanSach.Models;
-
+using CuaHangBanSach.ViewModels;
 namespace CuaHangBanSach.Repository
 {
     public interface IProductRepository
