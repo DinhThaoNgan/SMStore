@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 using CuaHangBanSach.Models;
 using CuaHangBanSach.Repository;
+using CuaHangBanSach.ViewModels;
 
 namespace CuaHangBanSach.Areas.Admin.Controllers
 {
