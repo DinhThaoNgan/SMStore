@@ -145,11 +145,11 @@ namespace CuaHangBanSach.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Xác nhận tài khoản",
+                    /*await _emailSender.SendEmailAsync(Input.Email, "Xác nhận tài khoản",
                         $"Chào {Input.FullName ?? Input.Email},<br/><br/>" +
                         $"Cảm ơn bạn đã đăng ký tài khoản.<br/>" +
                         $"Vui lòng <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>bấm vào đây</a> để xác nhận Email.<br/><br/>" +
-                        $"Trân trọng.");
+                        $"Trân trọng.");*/
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
