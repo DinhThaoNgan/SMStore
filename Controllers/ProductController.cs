@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using CuaHangBanSach.Models;
 using CuaHangBanSach.Repository;
 using CuaHangBanSach.ViewModels;
@@ -76,6 +77,9 @@ namespace CuaHangBanSach.Controllers
                 BrandId = brandId
             };
 
+            // Load sliders for the sidebar
+            ViewBag.Sliders = await _context.Sliders.ToListAsync();
+
             return View(viewModel);
         }
 
@@ -100,6 +104,9 @@ namespace CuaHangBanSach.Controllers
                 Images = product.Images ?? new List<ProductImage>(),
                 RelatedProducts = related ?? new List<Product>()
             };
+
+            // Load sliders for the sidebar
+            ViewBag.Sliders = await _context.Sliders.ToListAsync();
 
             return View(viewModel);
         }
