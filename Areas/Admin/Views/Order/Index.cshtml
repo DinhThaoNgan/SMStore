@@ -6,119 +6,180 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<div class="px-3 py-5">
-    <h2 class="text-center mb-4 fw-bold">
-        <i class="bi bi-bag-check"></i> Quản lý Đơn hàng
-    </h2>
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 fw-bold" style="color: #2c3e50;">
+            <i class="bi bi-receipt-cutoff text-primary me-2"></i>Quản lý Đơn hàng
+        </h2>
+    </div>
 
-    <form method="get" class="mb-4 d-flex justify-content-center">
-        <input type="text" name="search" value="@Model.SearchTerm" class="form-control w-25 me-2" placeholder="Tìm theo tên hoặc username" />
-        <button type="submit" class="btn btn-dark">Tìm kiếm</button>
-    </form>
+    <div class="card shadow-lg mb-4">
+        <div class="card-body">
+            <form method="get" class="mb-0">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-primary text-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@Model.SearchTerm" class="form-control" placeholder="Tìm theo tên khách hàng hoặc username..." />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-2"></i>Tìm kiếm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     }
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success text-center">@TempData["Success"]</div>
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     }
 
     @if (!Model.Items.Any())
     {
-        <div class="alert alert-info text-center">
-            <i class="bi bi-info-circle"></i> Chưa có đơn hàng nào.
+        <div class="card shadow-lg">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                <p class="text-muted mb-0">Chưa có đơn hàng nào.</p>
+            </div>
         </div>
     }
     else
     {
-        <div class="table-responsive shadow rounded-3 overflow-hidden">
-            <table class="table table-hover align-middle mb-0 bg-white">
-                <thead class="table-light text-center">
-                    <tr>
-                        <th>#</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày đặt</th>
-                        <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    @foreach (var order in Model.Items)
-                    {
-                        <tr>
-                            <td class="fw-semibold text-secondary">#@order.Id</td>
-                            <td>
-                                @(
-                                                        string.IsNullOrWhiteSpace(order.CustomerName)
-                                                        ? (string.IsNullOrWhiteSpace(order.ApplicationUser?.FullName)
-                                                        ? order.ApplicationUser?.UserName ?? "Không rõ"
-                                                        : order.ApplicationUser.FullName)
-                                                        : order.CustomerName
-                                                        )
-                        </td>
-                        <td>@order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@($"{order.TotalPrice:N0} VND")</td>
-                        <td>
-                        @{
-                                    var options = new List<SelectListItem>
-                                                {
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Danh sách đơn hàng</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 5%;">#</th>
+                                <th style="width: 20%;">Khách hàng</th>
+                                <th class="text-center" style="width: 15%;">Ngày đặt</th>
+                                <th class="text-center" style="width: 15%;">Tổng tiền</th>
+                                <th class="text-center" style="width: 20%;">Trạng thái</th>
+                                <th class="text-center" style="width: 25%;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.Items)
+                            {
+                                <tr>
+                                    <td class="text-center fw-bold text-primary">#@order.Id</td>
+                                    <td>
+                                        <div>
+                                            <strong class="text-dark">@(
+                                                string.IsNullOrWhiteSpace(order.CustomerName)
+                                                ? (string.IsNullOrWhiteSpace(order.ApplicationUser?.FullName)
+                                                ? order.ApplicationUser?.UserName ?? "Không rõ"
+                                                : order.ApplicationUser.FullName)
+                                                : order.CustomerName
+                                            )</strong>
+                                            @if (!string.IsNullOrWhiteSpace(order.PhoneNumber))
+                                            {
+                                                <br><small class="text-muted"><i class="bi bi-telephone me-1"></i>@order.PhoneNumber</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <small>@order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy")</small><br>
+                                        <small class="text-muted">@order.OrderDate.ToLocalTime().ToString("HH:mm")</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fw-bold text-danger">@($"{order.TotalPrice:N0} ₫")</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            var options = new List<SelectListItem>
+                                            {
+                                                new SelectListItem { Text = "Chờ xác nhận", Value = "Chờ xác nhận" },
                                                 new SelectListItem { Text = "Đang xử lý", Value = "Đang xử lý" },
-                                                new SelectListItem { Text = "Đã xử lý", Value = "Đã xử lý" },
                                                 new SelectListItem { Text = "Đang giao hàng", Value = "Đang giao hàng" },
                                                 new SelectListItem { Text = "Đã hoàn thành", Value = "Đã hoàn thành" },
                                                 new SelectListItem { Text = "Đã hủy", Value = "Đã hủy" }
-                                                };
+                                            };
 
-                                    if (order.Status == "Đang giao hàng")
-                                    {
-                                        options.RemoveAll(o => o.Value == "Đã hủy");
-                                    }
-                                    else if (order.Status == "Đã hoàn thành" || order.Status == "Đã hủy")
-                                    {
-                                        options.Clear();
-                                    }
-                                }
+                                            if (order.Status == "Đang giao hàng")
+                                            {
+                                                options.RemoveAll(o => o.Value == "Đã hủy");
+                                            }
+                                            else if (order.Status == "Đã hoàn thành" || order.Status == "Đã hủy")
+                                            {
+                                                options.Clear();
+                                            }
 
-                                @if (options.Any())
-                                {
-                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                        <input type="hidden" name="orderId" value="@order.Id" />
-                                        @Html.DropDownList("status", new SelectList(options, "Value", "Text", order.Status),
-                                        new { @class = "form-select form-select-sm w-auto d-inline", onchange = "this.form.submit()" })
-                        </form>
-                                                }
-                                else
-                                {
-                                    <span class="text-muted">@order.Status</span>
-                                }
-                            </td>
-                            <td>
-                                @if (order.Status == "Đã hoàn thành")
-                                {
-                                    <a asp-action="Print" asp-route-id="@order.Id" target="_blank" class="btn btn-sm btn-outline-primary me-2">
-                                        🖨️ In
-                                    </a>
-                                }
+                                            var statusColors = new Dictionary<string, string>
+                                            {
+                                                { "Chờ xác nhận", "bg-warning text-dark" },
+                                                { "Đang xử lý", "bg-info text-white" },
+                                                { "Đang giao hàng", "bg-primary text-white" },
+                                                { "Đã hoàn thành", "bg-success text-white" },
+                                                { "Đã hủy", "bg-danger text-white" }
+                                            };
+                                            var currentStatusClass = statusColors.ContainsKey(order.Status) ? statusColors[order.Status] : "bg-secondary text-white";
+                                        }
 
-                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-outline-dark me-2">
-                                    <i class="bi bi-eye-fill"></i> Xem
-                                </a>
-
-                                @if (order.Status == "Đã hủy")
-                                {
-                                    <a asp-action="Delete" asp-route-id="@order.Id" class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Bạn có chắc muốn xoá đơn hàng này?');">
-                                        <i class="bi bi-trash3-fill"></i> Xoá
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                                        @if (options.Any())
+                                        {
+                                            <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                                <input type="hidden" name="orderId" value="@order.Id" />
+                                                <select name="status" class="form-select form-select-sm d-inline-block" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                                                    @foreach (var option in options)
+                                                    {
+                                                        if (option.Value == order.Status)
+                                                        {
+                                                            <option value="@option.Value" selected>@option.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@option.Value">@option.Text</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge @currentStatusClass">@order.Status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                            <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-info" title="Xem chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (order.Status == "Đã hoàn thành")
+                                            {
+                                                <a asp-action="Print" asp-route-id="@order.Id" target="_blank" class="btn btn-sm btn-primary" title="In hóa đơn">
+                                                    <i class="bi bi-printer"></i>
+                                                </a>
+                                            }
+                                            @if (order.Status == "Đã hủy")
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@order.Id" class="btn btn-sm btn-danger" title="Xóa đơn hàng"
+                                                   onclick="return confirm('Bạn có chắc muốn xoá đơn hàng này?');">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <nav class="mt-4 d-flex justify-content-center">

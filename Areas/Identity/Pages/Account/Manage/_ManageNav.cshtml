@@ -5,17 +5,34 @@
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
 
-<div class="list-group shadow-sm rounded-3 overflow-hidden">
-    <a class="list-group-item list-group-item-action d-flex align-items-center gap-2 fw-semibold @(ManageNavPages.IndexNavClass(ViewContext))"
-       asp-page="./Index">
-        <i class="fa-solid fa-user"></i> Thông tin cá nhân
+<div class="list-group shadow-lg border-0 rounded-3 overflow-hidden">
+    <a class="list-group-item list-group-item-action d-flex align-items-center gap-3 fw-semibold @(ManageNavPages.IndexNavClass(ViewContext))"
+       asp-page="./Index" style="border-left: 4px solid transparent; transition: all 0.3s;">
+        <i class="bi bi-person-circle fs-5"></i> 
+        <span>Thông tin cá nhân</span>
     </a>
-    <a class="list-group-item list-group-item-action d-flex align-items-center gap-2 fw-semibold @(ManageNavPages.ChangePasswordNavClass(ViewContext))"
-       asp-page="./ChangePassword">
-        <i class="fa-solid fa-lock"></i> Thay đổi mật khẩu
+    <a class="list-group-item list-group-item-action d-flex align-items-center gap-3 fw-semibold @(ManageNavPages.ChangePasswordNavClass(ViewContext))"
+       asp-page="./ChangePassword" style="border-left: 4px solid transparent; transition: all 0.3s;">
+        <i class="bi bi-shield-lock fs-5"></i> 
+        <span>Thay đổi mật khẩu</span>
     </a>
-    <a class="list-group-item list-group-item-action d-flex align-items-center gap-2 fw-semibold @(ManageNavPages.OrdersNavClass(ViewContext))"
-       asp-page="./Orders">
-        <i class="fa-solid fa-receipt"></i> Đơn mua
+    <a class="list-group-item list-group-item-action d-flex align-items-center gap-3 fw-semibold @(ManageNavPages.OrdersNavClass(ViewContext))"
+       asp-page="./Orders" style="border-left: 4px solid transparent; transition: all 0.3s;">
+        <i class="bi bi-receipt fs-5"></i> 
+        <span>Đơn mua</span>
     </a>
 </div>
+
+<style>
+    .list-group-item.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-left: 4px solid #fff !important;
+    }
+    
+    .list-group-item:not(.active):hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        border-left: 4px solid #667eea !important;
+        transform: translateX(5px);
+    }
+</style>

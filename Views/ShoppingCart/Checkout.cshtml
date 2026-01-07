@@ -10,11 +10,18 @@
 }
 
 <div class="container py-5">
-    <h2 class="mb-4 text-center text-uppercase text-primary">Thanh toán đơn hàng</h2>
+    <div class="text-center mb-5">
+        <h2 class="text-uppercase fw-bold mb-2" style="color: #2c3e50;">
+            <i class="bi bi-credit-card-fill text-primary"></i> Thanh toán đơn hàng
+        </h2>
+        <p class="text-muted">Hoàn tất thông tin để đặt hàng</p>
+    </div>
 
     <!-- GIỎ HÀNG -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-info text-white"><strong>Sản phẩm trong giỏ</strong></div>
+    <div class="card mb-4 shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-cart-check"></i> Sản phẩm trong giỏ</h5>
+        </div>
         <div class="card-body">
             @if (cart.Items.Any())
             {
@@ -57,8 +64,10 @@
     </div>
 
     <!-- THÔNG TIN ĐẶT HÀNG -->
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white"><strong>Thông tin đặt hàng</strong></div>
+    <div class="card shadow-lg">
+        <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h5 class="mb-0 text-white"><i class="bi bi-person-fill"></i> Thông tin đặt hàng</h5>
+        </div>
         <div class="card-body">
             <form asp-action="Checkout" method="post">
                 @Html.AntiForgeryToken()
@@ -108,20 +117,23 @@
 
                 <!-- TỔNG TIỀN -->
                 <div class="mb-4">
-                    <table class="table">
-                        <tr>
-                            <th class="text-end">Tạm tính:</th>
-                            <td class="text-end">@subtotal.ToString("N0")₫</td>
-                        </tr>
-                        <tr>
-                            <th class="text-end text-success">Đã giảm:</th>
-                            <td id="discountAmount" class="text-success text-end">0₫</td>
-                        </tr>
-                        <tr>
-                            <th class="text-end text-danger">Tổng cộng:</th>
-                            <td id="finalTotal" class="fw-bold text-danger text-end">@subtotal.ToString("N0")₫</td>
-                        </tr>
-                    </table>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="fw-semibold">Tạm tính:</span>
+                                <span class="fw-semibold">@subtotal.ToString("N0")₫</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-success fw-semibold">Đã giảm:</span>
+                                <span id="discountAmount" class="text-success fw-semibold">0₫</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold fs-5">Tổng cộng:</span>
+                                <span id="finalTotal" class="fw-bold text-danger fs-5">@subtotal.ToString("N0")₫</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-check mb-3 d-flex justify-content-center">

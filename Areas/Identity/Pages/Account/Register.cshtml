@@ -6,60 +6,83 @@
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white text-center">
-                    <h4><i class="bi bi-person-plus"></i> Đăng ký tài khoản</h4>
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 fade-in">
+                <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3 class="mb-0"><i class="bi bi-person-plus me-2"></i> Đăng ký tài khoản</h3>
+                    <p class="mb-0 mt-2 small opacity-75">Tạo tài khoản mới để bắt đầu mua sắm</p>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
 
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.FullName" class="form-control" placeholder="Họ tên" />
-                            <label asp-for="Input.FullName">Họ và tên</label>
-                            <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.FullName" class="form-control" placeholder="Họ tên" />
+                                    <label asp-for="Input.FullName"><i class="bi bi-person me-2"></i>Họ và tên</label>
+                                    <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.Age" class="form-control" placeholder="Tuổi" type="number" />
+                                    <label asp-for="Input.Age"><i class="bi bi-calendar me-2"></i>Tuổi</label>
+                                    <span asp-validation-for="Input.Age" class="text-danger small"></span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-floating mb-3">
                             <input asp-for="Input.Address" class="form-control" placeholder="Địa chỉ" />
-                            <label asp-for="Input.Address">Địa chỉ</label>
-                            <span asp-validation-for="Input.Address" class="text-danger"></span>
+                            <label asp-for="Input.Address"><i class="bi bi-geo-alt me-2"></i>Địa chỉ</label>
+                            <span asp-validation-for="Input.Address" class="text-danger small"></span>
                         </div>
 
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Số điện thoại" />
-                            <label asp-for="Input.PhoneNumber">Số điện thoại</label>
-                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Số điện thoại" />
+                                    <label asp-for="Input.PhoneNumber"><i class="bi bi-telephone me-2"></i>Số điện thoại</label>
+                                    <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.Email" class="form-control" placeholder="name@example.com" autocomplete="username" />
+                                    <label asp-for="Input.Email"><i class="bi bi-envelope me-2"></i>Email</label>
+                                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.Age" class="form-control" placeholder="Tuổi" />
-                            <label asp-for="Input.Age">Tuổi</label>
-                            <span asp-validation-for="Input.Age" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.Password" class="form-control" placeholder="Mật khẩu" autocomplete="new-password" />
+                                    <label asp-for="Input.Password"><i class="bi bi-lock me-2"></i>Mật khẩu</label>
+                                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Xác nhận mật khẩu" autocomplete="new-password" />
+                                    <label asp-for="Input.ConfirmPassword"><i class="bi bi-lock-fill me-2"></i>Xác nhận mật khẩu</label>
+                                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.Email" class="form-control" placeholder="name@example.com" autocomplete="username" />
-                            <label asp-for="Input.Email">Email</label>
-                            <span asp-validation-for="Input.Email" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.Password" class="form-control" placeholder="Mật khẩu" autocomplete="new-password" />
-                            <label asp-for="Input.Password">Mật khẩu</label>
-                            <span asp-validation-for="Input.Password" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Xác nhận mật khẩu" autocomplete="new-password" />
-                            <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
-                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-                        </div>
-
-                        <button id="registerSubmit" type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-person-check"></i> Đăng ký
+                        <button id="registerSubmit" type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                            <i class="bi bi-person-check me-2"></i> Đăng ký
                         </button>
+
+                        <div class="text-center">
+                            <span class="text-muted">Đã có tài khoản?</span>
+                            <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none fw-bold ms-2">
+                                Đăng nhập ngay
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -67,12 +90,15 @@
             @if ((Model.ExternalLogins?.Count ?? 0) > 0)
             {
                 <div class="text-center mt-4">
-                    <p>Hoặc đăng ký bằng tài khoản khác</p>
-                    <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div class="position-relative">
+                        <hr>
+                        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">Hoặc</span>
+                    </div>
+                    <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="mt-4">
                         @foreach (var provider in Model.ExternalLogins!)
                         {
-                            <button type="submit" class="btn btn-outline-dark me-2 mb-2" name="provider" value="@provider.Name">
-                                @provider.DisplayName
+                            <button type="submit" class="btn btn-outline-primary me-2 mb-2" name="provider" value="@provider.Name">
+                                <i class="bi bi-google me-2"></i>@provider.DisplayName
                             </button>
                         }
                     </form>
