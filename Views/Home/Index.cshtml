@@ -1,0 +1,104 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<partial name="_SiderPartial" />
+
+<!-- Hero Section -->
+<section class="hero-section mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 60px 20px; color: white;">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">📚 SMStore - Cửa Hàng Sách Online</h1>
+        <p class="lead mb-4">Khám phá thế giới tri thức với hàng ngàn cuốn sách hay</p>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-light btn-lg px-5">
+            <i class="bi bi-arrow-right-circle me-2"></i> Khám phá ngay
+        </a>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+<section class="mb-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold mb-2" style="color: #2c3e50;">
+            <i class="bi bi-grid-3x3-gap text-primary"></i> Danh mục nổi bật
+        </h2>
+        <p class="text-muted">Chọn thể loại sách bạn yêu thích</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm h-100 text-center" style="transition: all 0.3s; cursor: pointer;" onclick="window.location.href='/Product?categoryId=1'">
+                <div class="card-body">
+                    <i class="bi bi-book fs-1 text-primary mb-3"></i>
+                    <h5 class="card-title">Văn học</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm h-100 text-center" style="transition: all 0.3s; cursor: pointer;" onclick="window.location.href='/Product?categoryId=2'">
+                <div class="card-body">
+                    <i class="bi bi-journal-text fs-1 text-info mb-3"></i>
+                    <h5 class="card-title">Khoa học</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm h-100 text-center" style="transition: all 0.3s; cursor: pointer;" onclick="window.location.href='/Product?categoryId=3'">
+                <div class="card-body">
+                    <i class="bi bi-graph-up fs-1 text-success mb-3"></i>
+                    <h5 class="card-title">Kinh tế</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm h-100 text-center" style="transition: all 0.3s; cursor: pointer;" onclick="window.location.href='/Product?categoryId=4'">
+                <div class="card-body">
+                    <i class="bi bi-lightbulb fs-1 text-warning mb-3"></i>
+                    <h5 class="card-title">Tự phát triển</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="mb-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold mb-2" style="color: #2c3e50;">
+            <i class="bi bi-star-fill text-warning"></i> Tại sao chọn SMStore?
+        </h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center p-4">
+                <i class="bi bi-truck fs-1 text-primary mb-3"></i>
+                <h5 class="fw-bold">Giao hàng nhanh</h5>
+                <p class="text-muted">Miễn phí vận chuyển cho đơn hàng trên 500.000₫</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center p-4">
+                <i class="bi bi-shield-check fs-1 text-success mb-3"></i>
+                <h5 class="fw-bold">Chất lượng đảm bảo</h5>
+                <p class="text-muted">100% sách chính hãng, đảm bảo chất lượng</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center p-4">
+                <i class="bi bi-headset fs-1 text-info mb-3"></i>
+                <h5 class="fw-bold">Hỗ trợ 24/7</h5>
+                <p class="text-muted">Đội ngũ CSKH luôn sẵn sàng hỗ trợ bạn</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hero-section {
+        margin-top: 20px;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+</style>
+

@@ -16,24 +16,28 @@
     <link rel="stylesheet" href="~/CuaHangBanSach.styles.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-expand-lg" style="background-color: #ffc107;">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand fw-bold text-dark" asp-area="" asp-controller="Product" asp-action="Index">Trang Chủ</a>
+            <a class="navbar-brand fw-bold" asp-area="" asp-controller="Product" asp-action="Index">
+                <i class="bi bi-book-half me-2"></i>📚 SMStore
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon" style="filter: brightness(0) invert(1);"></span>
             </button>
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
                 <ul class="navbar-nav me-auto"></ul>
 
                 <form class="d-flex flex-grow-1 mx-3" asp-controller="Product" asp-action="Index" method="get" style="max-width: 500px;">
-                    <input class="form-control me-2" type="search" name="search" placeholder="Tìm sản phẩm..." aria-label="Search" />
-                    <button class="btn btn-outline-dark" type="submit">Tìm</button>
+                    <input class="form-control me-2" type="search" name="search" placeholder="🔍 Tìm kiếm sách..." aria-label="Search" />
+                    <button class="btn btn-outline-dark" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
                 </form>
 
-                <a href="/ShoppingCart" class="btn btn-dark position-relative me-3">
-                    <i class="bi bi-cart"></i>
+                <a href="/ShoppingCart" class="btn btn-dark position-relative me-3" title="Giỏ hàng">
+                    <i class="bi bi-cart-fill"></i>
                     <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                         0
                     </span>

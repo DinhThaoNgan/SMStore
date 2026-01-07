@@ -1,12 +1,29 @@
+/* ============================================
+   MODERN UI IMPROVEMENTS - CuaHangBanSach
+   ============================================ */
 
+/* Variables */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --light-bg: #f8f9fa;
+    --dark-text: #2c3e50;
+    --light-text: #7f8c8d;
+    --border-color: #e0e0e0;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+    --transition: all 0.3s ease;
+}
+
+/* Base Styles */
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html, body {
@@ -14,6 +31,8 @@ html, body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--dark-text);
 }
 
 *, *::before, *::after {
@@ -24,8 +43,298 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    background-color: var(--light-bg);
 }
 
 main {
     flex: 1 0 auto;
+}
+
+/* Focus States */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, 
+.form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--secondary-color);
+}
+
+/* ============================================
+   NAVBAR IMPROVEMENTS
+   ============================================ */
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: var(--shadow-md);
+    padding: 1rem 0;
+    transition: var(--transition);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: var(--transition);
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+    color: #f0f0f0 !important;
+}
+
+.navbar .form-control {
+    border-radius: 25px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.9);
+    transition: var(--transition);
+}
+
+.navbar .form-control:focus {
+    background: white;
+    border-color: white;
+    box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.5);
+}
+
+.navbar .btn-outline-dark {
+    border-radius: 25px;
+    border: 2px solid white;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    transition: var(--transition);
+}
+
+.navbar .btn-outline-dark:hover {
+    background: white;
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.navbar .btn-dark {
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid white;
+    transition: var(--transition);
+}
+
+.navbar .btn-dark:hover {
+    background: white;
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+/* ============================================
+   PRODUCT CARDS IMPROVEMENTS
+   ============================================ */
+.card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    background: white;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-img-top {
+    transition: var(--transition);
+    background: #f8f9fa;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.card-title {
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.text-warning {
+    color: var(--accent-color) !important;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+/* ============================================
+   BUTTONS IMPROVEMENTS
+   ============================================ */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    transition: var(--transition);
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--secondary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   FORMS IMPROVEMENTS
+   ============================================ */
+.form-control {
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-select {
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+}
+
+.form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* ============================================
+   TABLES IMPROVEMENTS
+   ============================================ */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+    transition: var(--transition);
+}
+
+/* ============================================
+   PAGINATION IMPROVEMENTS
+   ============================================ */
+.pagination .page-link {
+    border-radius: 8px;
+    margin: 0 2px;
+    border: 2px solid var(--border-color);
+    color: var(--dark-text);
+    transition: var(--transition);
+}
+
+.pagination .page-link:hover {
+    background: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   ALERTS IMPROVEMENTS
+   ============================================ */
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   FOOTER IMPROVEMENTS
+   ============================================ */
+footer {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%) !important;
+    color: white !important;
+    padding: 2rem 0 !important;
+    margin-top: auto;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ============================================
+   RESPONSIVE IMPROVEMENTS
+   ============================================ */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
 }
